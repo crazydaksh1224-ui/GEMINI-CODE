@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notion Warp-Card Widget</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    :root {
+      --bg-color: #fbfbfa;
+      --card-bg: #ffffff;
+      --card-border: rgba(15, 15, 15, 0.08);
+      --text-main: #37352f;
+      --text-sub: #787774;
+      --accent: #2383e2;
+      --accent-rgb: 35, 131, 226;
+      --whatsapp-color: #25D366;
+      --whatsapp-rgb: 37, 211, 102;
+      --shadow: 0 4px 20px -2px rgba(15, 15, 15, 0.05), 0 2px 6px -1px rgba(15, 15, 15, 0.03);
+      --glare-opacity: 0.15;
+    }
+
+    .theme-light {
+      --bg-color: #fbfbfa;
+      --card-bg: #ffffff;
+      --card-border: rgba(15, 15, 15, 0.08);
+      --text-main: #37352f;
+      --text-sub: #787774;
+      --accent: #2383e2;
+      --accent-rgb: 35, 131, 226;
+      --shadow: 0 4px 20px -2px rgba(15, 15, 15, 0.05), 0 2px 6px -1px rgba(15, 15, 15, 0.03);
+      --glare-opacity: 0.12;
+    }
+
+    .theme-dark {
+      --bg-color: #191919;
+      --card-bg: #202020;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f1f1f1;
+      --text-sub: #9b9b9b;
+      --accent: #2eaadc;
+      --accent-rgb: 46, 170, 220;
+      --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+      --glare-opacity: 0.25;
+    }
+
+    .theme-sepia {
+      --bg-color: #f4edd8;
+      --card-bg: #fdf6e3;
+      --card-border: rgba(93, 72, 53, 0.12);
+      --text-main: #433422;
+      --text-sub: #82725e;
+      --accent: #b58900;
+      --accent-rgb: 181, 137, 0;
+      --shadow: 0 6px 20px rgba(67, 52, 34, 0.06);
+      --glare-opacity: 0.1;
+    }
+
+    .theme-forest {
+      --bg-color: #141c18;
+      --card-bg: #1a2420;
+      --card-border: rgba(255, 255, 255, 0.06);
+      --text-main: #e2e8f0;
+      --text-sub: #8da498;
+      --accent: #10b981;
+      --accent-rgb: 16, 185, 129;
+      --shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+      --glare-opacity: 0.22;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    .warp-container {
+      perspective: 1000px;
+    }
+
+    .curvy-card {
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow);
+      transition: 
+        transform 0.15s ease-out,
+        box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+        background-color 0.4s ease,
+        border-color 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .curvy-card:hover {
+      box-shadow: 
+        0 20px 40px -10px rgba(0, 0, 0, 0.15),
+        0 0 1px 1px rgba(var(--accent-rgb), 0.2);
+    }
+
+    /* Dynamic cursor glare effect */
+    .card-glare {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle 120px at var(--glare-x, 0px) var(--glare-y, 0px), rgba(255, 255, 255, var(--glare-opacity)) 0%, rgba(255, 255, 255, 0) 80%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .theme-dark .card-glare {
+      background: radial-gradient(circle 140px at var(--glare-x, 0px) var(--glare-y, 0px), rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 80%);
+    }
+
+    /* Custom inputs & subtle interactions for setting UI */
+    .notion-input {
+      background: rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: var(--text-main);
+    }
+    .theme-dark .notion-input {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .theme-sepia .notion-input {
+      background: rgba(67, 52, 34, 0.04);
+      border: 1px solid rgba(67, 52, 34, 0.12);
+    }
+    .theme-forest .notion-input {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Wave effect animation */
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.08); }
+    }
+    .pulsing-glow {
+      animation: pulse-slow 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="theme-light min-h-screen flex flex-col justify-between p-4 antialiased overflow-x-hidden selection:bg-neutral-200 selection:bg-opacity-50">
+
+  <!-- Top Navigation Bar (Integrated perfectly for Notion aesthetics) -->
+  <header class="w-full max-w-md mx-auto flex items-center justify-between mb-4 px-2 opacity-85">
+    <div class="flex items-center space-x-2">
+      <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+      <span class="text-xs font-semibold tracking-wide uppercase opacity-75" style="color: var(--text-sub)">Active Workspace widget</span>
+    </div>
+    
+    <div class="flex items-center space-x-1.5 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-full border border-neutral-200 dark:border-neutral-700 transition-colors">
+      <button onclick="changeTheme('light')" class="p-1 rounded-full text-xs transition-all hover:bg-white dark:hover:bg-neutral-700 focus:outline-none" title="Light Mode">
+        <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+      </button>
+      <button onclick="changeTheme('dark')" class="p-1 rounded-full text-xs transition-all hover:bg-neutral-200 dark:hover:bg-neutral-700 focus:outline-none" title="Dark Mode">
+        <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+      </button>
+      <button onclick="changeTheme('sepia')" class="p-1 rounded-full text-xs transition-all hover:bg-amber-100 focus:outline-none" title="Sepia Mode">
+        <i data-lucide="book-open" class="w-3.5 h-3.5 text-amber-900"></i>
+      </button>
+      <button onclick="changeTheme('forest')" class="p-1 rounded-full text-xs transition-all hover:bg-emerald-900 focus:outline-none" title="Forest Mode">
+        <i data-lucide="trees" class="w-3.5 h-3.5 text-emerald-400"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Vertical align main body -->
+  <main class="w-full max-w-md mx-auto flex-grow flex flex-col justify-center gap-5 my-auto py-2">
+
+    <!-- CARD 1: WHATSAPP QUICK ACTION CARD (Top Card) -->
+    <div class="warp-container">
+      <div id="card-whatsapp" onclick="triggerWhatsApp()" class="curvy-card group cursor-pointer p-6 flex items-center justify-between overflow-hidden">
+        <div class="card-glare"></div>
+        <div class="flex items-center space-x-4 relative z-10 pointer-events-none">
+          <!-- WhatsApp Icon in Premium Soft Container -->
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(var(--whatsapp-rgb), 0.12);">
+            <svg class="w-6 h-6 transition-transform group-hover:rotate-12" style="color: var(--whatsapp-color);" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-base tracking-tight transition-colors" style="color: var(--text-main)">WhatsApp Dispatch</h3>
+            <p id="whatsapp-desc-text" class="text-xs transition-all opacity-80" style="color: var(--text-sub)">Connect with workspace team instantly</p>
+          </div>
+        </div>
+        <div class="relative z-10 flex items-center space-x-2 pointer-events-none">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping absolute"></span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 relative"></span>
+          <i data-lucide="arrow-right" class="w-4 h-4 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" style="color: var(--accent)"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: CUSTOM RESOURCE CARD (Middle Card) -->
+    <div class="warp-container">
+      <div id="card-resource" onclick="triggerCardLink('url-card-2')" class="curvy-card group cursor-pointer p-6 flex items-center justify-between overflow-hidden">
+        <div class="card-glare"></div>
+        <div class="flex items-center space-x-4 relative z-10 pointer-events-none">
+          <!-- Custom Icon Container -->
+          <div id="card-2-icon-box" class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style="background: rgba(var(--accent-rgb), 0.12);">
+            <i data-lucide="external-link" id="card-2-icon" class="w-6 h-6 transition-transform group-hover:scale-110" style="color: var(--accent);"></i>
+          </div>
+          <div>
+            <h3 id="card-2-title" class="font-bold text-base tracking-tight transition-colors" style="color: var(--text-main)">Project Hub</h3>
+            <p id="card-2-subtitle" class="text-xs opacity-80" style="color: var(--text-sub)">Launch primary database resources</p>
+          </div>
+        </div>
+        <div class="relative z-10 pointer-events-none">
+          <i data-lucide="chevron-right" class="w-5 h-5 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" style="color: var(--accent)"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3: WORKSPACE HABIT/TASK TRACKER CARD (Bottom Card) -->
+    <div class="warp-container">
+      <div id="card-task" class="curvy-card p-6 flex flex-col justify-between overflow-hidden gap-3">
+        <div class="card-glare"></div>
+        <div class="flex items-center justify-between relative z-10">
+          <div class="flex items-center space-x-3 pointer-events-none">
+            <i data-lucide="check-square" class="w-5 h-5" style="color: var(--accent)"></i>
+            <span class="font-semibold text-sm tracking-tight" style="color: var(--text-sub)">Workspace Sprint Goal</span>
+          </div>
+          <!-- Settings Trigger -->
+          <button onclick="toggleSettingsPanel()" class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-xs" style="color: var(--text-sub)" title="Configure Widget">
+            <i data-lucide="sliders" class="w-4 h-4 hover:rotate-45 transition-transform"></i>
+          </button>
+        </div>
+
+        <!-- Task item rows -->
+        <div class="flex flex-col gap-2 relative z-10">
+          <label class="flex items-center space-x-3 cursor-pointer select-none py-1 group">
+            <input type="checkbox" id="task1" onchange="saveTasks()" class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer">
+            <span id="task1-label" class="text-xs font-medium tracking-tight group-hover:opacity-100 transition-opacity" style="color: var(--text-main)">Daily review finished</span>
+          </label>
+          <label class="flex items-center space-x-3 cursor-pointer select-none py-1 group">
+            <input type="checkbox" id="task2" onchange="saveTasks()" class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 transition-all cursor-pointer">
+            <span id="task2-label" class="text-xs font-medium tracking-tight group-hover:opacity-100 transition-opacity" style="color: var(--text-main)">Push modifications to github repo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Clean Custom Notification Toast (No Alerts!) -->
+  <div id="custom-toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 text-xs px-4 py-2.5 rounded-full shadow-lg opacity-0 pointer-events-none transition-all duration-300 z-50 flex items-center space-x-2">
+    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+    <span id="toast-message">Configuration saved!</span>
+  </div>
+
+  <!-- Elegant Embedded Customizer Panel -->
+  <section id="settings-panel" class="hidden w-full max-w-md mx-auto mt-4 p-5 rounded-3xl border transition-all duration-300" style="background: var(--card-bg); border-color: var(--card-border);">
+    <div class="flex items-center justify-between mb-4 pb-2 border-b" style="border-color: var(--card-border)">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="cog" class="w-4 h-4" style="color: var(--accent)"></i>
+        <h4 class="font-bold text-sm" style="color: var(--text-main)">Widget Settings</h4>
+      </div>
+      <button onclick="toggleSettingsPanel()" class="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable settings area -->
+    <div class="space-y-4 max-h-72 overflow-y-auto pr-1">
+      
+      <!-- WhatsApp Preferences -->
+      <div>
+        <h5 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-75" style="color: var(--text-sub)">Card 1: WhatsApp</h5>
+        <div class="grid grid-cols-1 gap-2">
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Phone Number (with Country Code)</label>
+            <input type="text" id="wa-number" placeholder="e.g. 15551234567" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Pre-filled Message</label>
+            <input type="text" id="wa-msg" placeholder="Workspace Inquiry..." class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Sub-description</label>
+            <input type="text" id="wa-desc" placeholder="Connect with workspace team instantly" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-emerald-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 Configuration -->
+      <div class="pt-3 border-t" style="border-color: var(--card-border)">
+        <h5 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-75" style="color: var(--text-sub)">Card 2: Quick Link</h5>
+        <div class="grid grid-cols-1 gap-2">
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Title Text</label>
+            <input type="text" id="card2-title-val" placeholder="Resource Hub" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Subtitle Text</label>
+            <input type="text" id="card2-sub-val" placeholder="Primary database folder" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-medium opacity-70">URL Destination</label>
+            <input type="text" id="card2-url-val" placeholder="https://notion.so" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 Tasks Configuration -->
+      <div class="pt-3 border-t" style="border-color: var(--card-border)">
+        <h5 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-75" style="color: var(--text-sub)">Card 3: Workspace Objectives</h5>
+        <div class="grid grid-cols-1 gap-2">
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Objective 1</label>
+            <input type="text" id="task1-text-val" placeholder="Daily review finished" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="text-[10px] font-medium opacity-70">Objective 2</label>
+            <input type="text" id="task2-text-val" placeholder="Push modifications to github" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-purple-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced settings -->
+      <div class="pt-3 border-t" style="border-color: var(--card-border)">
+        <h5 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-75" style="color: var(--text-sub)">Warp Physics Sensitivity</h5>
+        <div>
+          <input type="range" id="warp-sensitivity" min="0" max="30" value="15" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:bg-gray-700">
+          <div class="flex justify-between text-[10px] opacity-65 mt-1">
+            <span>Flat (Static)</span>
+            <span>Balanced</span>
+            <span>Extreme Tilting</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Apply & Save triggers -->
+    <div class="mt-4 pt-3 border-t flex items-center justify-end space-x-2" style="border-color: var(--card-border)">
+      <button onclick="resetDefaults()" class="px-3 py-1.5 text-xs rounded-lg transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400" style="color: var(--text-sub)">
+        Reset Defaults
+      </button>
+      <button onclick="saveWidgetSettings()" class="px-4 py-1.5 text-xs font-semibold rounded-lg text-white transition-all bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 hover:scale-105 active:scale-95">
+        Save Config
+      </button>
+    </div>
+  </section>
+
+  <!-- Minimalist footer aligning elegantly within Notion embed -->
+  <footer class="w-full max-w-md mx-auto mt-4 text-center opacity-45 text-[10px] font-medium tracking-tight" style="color: var(--text-sub)">
+    Notion Warp Widget &bull; Hold & Drag pointer to feel 3D warping
+  </footer>
+
+  <script>
+    // Config defaults
+    let config = {
+      theme: 'light',
+      waNumber: '15551234567',
+      waMessage: 'Hi Team, initiating quick connect from Workspace!',
+      waDesc: 'Connect with workspace team instantly',
+      card2Title: 'Resource Hub',
+      card2Subtitle: 'Primary database folder',
+      card2Url: 'https://notion.so',
+      task1Text: 'Daily review finished',
+      task2Text: 'Push modifications to github repo',
+      task1Checked: false,
+      task2Checked: false,
+      warpSensitivity: 15
+    };
+
+    // Initialize Widget
+    window.onload = function() {
+      loadSavedConfig();
+      initializeWarpEffects();
+      lucide.createIcons();
+    };
+
+    // Load configurations from LocalStorage safely
+    function loadSavedConfig() {
+      try {
+        const local = localStorage.getItem('notion_warp_widget_config');
+        if (local) {
+          config = { ...config, ...JSON.parse(local) };
+        }
+      } catch (e) {
+        console.warn('Unable to reach localStorage, using defaults.', e);
+      }
+      
+      applyConfigToDOM();
+    }
+
+    // Apply values to UI & Styles
+    function applyConfigToDOM() {
+      // Set Theme class
+      document.body.className = `theme-${config.theme} min-h-screen flex flex-col justify-between p-4 antialiased overflow-x-hidden selection:bg-neutral-200 selection:bg-opacity-50`;
+      
+      // WhatsApp card text update
+      document.getElementById('whatsapp-desc-text').innerText = config.waDesc;
+
+      // Card 2 text updates
+      document.getElementById('card-2-title').innerText = config.card2Title;
+      document.getElementById('card-2-subtitle').innerText = config.card2Subtitle;
+
+      // Card 3 Checkboxes text updates
+      document.getElementById('task1-label').innerText = config.task1Text;
+      document.getElementById('task2-label').innerText = config.task2Text;
+
+      // Checkbox checked state tracking
+      document.getElementById('task1').checked = config.task1Checked;
+      document.getElementById('task2').checked = config.task2Checked;
+
+      // Bind data to input settings panel fields
+      document.getElementById('wa-number').value = config.waNumber;
+      document.getElementById('wa-msg').value = config.waMessage;
+      document.getElementById('wa-desc').value = config.waDesc;
+
+      document.getElementById('card2-title-val').value = config.card2Title;
+      document.getElementById('card2-sub-val').value = config.card2Subtitle;
+      document.getElementById('card2-url-val').value = config.card2Url;
+
+      document.getElementById('task1-text-val').value = config.task1Text;
+      document.getElementById('task2-text-val').value = config.task2Text;
+
+      document.getElementById('warp-sensitivity').value = config.warpSensitivity;
+    }
+
+    // Save settings action
+    function saveWidgetSettings() {
+      config.waNumber = document.getElementById('wa-number').value.trim();
+      config.waMessage = document.getElementById('wa-msg').value;
+      config.waDesc = document.getElementById('wa-desc').value;
+
+      config.card2Title = document.getElementById('card2-title-val').value;
+      config.card2Subtitle = document.getElementById('card2-sub-val').value;
+      config.card2Url = document.getElementById('card2-url-val').value;
+
+      config.task1Text = document.getElementById('task1-text-val').value;
+      config.task2Text = document.getElementById('task2-text-val').value;
+
+      config.warpSensitivity = parseInt(document.getElementById('warp-sensitivity').value);
+
+      saveStateToLocalStorage();
+      applyConfigToDOM();
+      showToast('Widget settings updated successfully!');
+      toggleSettingsPanel();
+    }
+
+    // Save checked task list independently on selection
+    function saveTasks() {
+      config.task1Checked = document.getElementById('task1').checked;
+      config.task2Checked = document.getElementById('task2').checked;
+      saveStateToLocalStorage();
+    }
+
+    function saveStateToLocalStorage() {
+      try {
+        localStorage.setItem('notion_warp_widget_config', JSON.stringify(config));
+      } catch (e) {
+        console.warn('Unable to write configurations.', e);
+      }
+    }
+
+    // Reset settings
+    function resetDefaults() {
+      config = {
+        theme: config.theme, // keep current selected theme
+        waNumber: '15551234567',
+        waMessage: 'Hi Team, initiating quick connect from Workspace!',
+        waDesc: 'Connect with workspace team instantly',
+        card2Title: 'Resource Hub',
+        card2Subtitle: 'Primary database folder',
+        card2Url: 'https://notion.so',
+        task1Text: 'Daily review finished',
+        task2Text: 'Push modifications to github repo',
+        task1Checked: false,
+        task2Checked: false,
+        warpSensitivity: 15
+      };
+      saveStateToLocalStorage();
+      applyConfigToDOM();
+      showToast('Restored default widget layout.');
+    }
+
+    // Smooth Theme switcher
+    function changeTheme(mode) {
+      config.theme = mode;
+      saveStateToLocalStorage();
+      applyConfigToDOM();
+    }
+
+    // Toggle setup drawer UI
+    function toggleSettingsPanel() {
+      const panel = document.getElementById('settings-panel');
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        panel.classList.add('hidden');
+      }
+    }
+
+    // Trigger WhatsApp Redirect
+    function triggerWhatsApp() {
+      const phone = config.waNumber.replace(/[^0-9]/g, '');
+      const text = encodeURIComponent(config.waMessage);
+      const waURL = `https://wa.me/${phone}?text=${text}`;
+      
+      showToast('Redirecting to WhatsApp...');
+      setTimeout(() => {
+        window.open(waURL, '_blank');
+      }, 400);
+    }
+
+    // Card resource redirection
+    function triggerCardLink(cardType) {
+      let target = '';
+      if(cardType === 'url-card-2') {
+        target = config.card2Url;
+      }
+
+      if (target) {
+        // Simple sanitization to assure valid URL links
+        if (!/^https?:\/\//i.test(target)) {
+          target = 'https://' + target;
+        }
+        window.open(target, '_blank');
+      } else {
+        showToast('Please configure a valid URL in widget options.');
+      }
+    }
+
+    // Toast Manager (Custom alerts)
+    function showToast(message) {
+      const toast = document.getElementById('custom-toast');
+      const toastText = document.getElementById('toast-message');
+      toastText.innerText = message;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    // 3D Tilt & Light Glare Calculations
+    function initializeWarpEffects() {
+      const cards = document.querySelectorAll('.curvy-card');
+
+      cards.forEach(card => {
+        // Prevent event-bindings on child elements that are interactive
+        card.addEventListener('mousemove', (e) => {
+          if (config.warpSensitivity === 0) return; // Ignore if sensitivity is turned off
+
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left; // Mouse position on card relative to card boundary
+          const y = e.clientY - rect.top;
+
+          // Find relative percentages (-50% to +50%)
+          const percentX = (x / rect.width) - 0.5;
+          const percentY = (y / rect.height) - 0.5;
+
+          // Base factor on user sensitivity setting
+          const multiplier = config.warpSensitivity;
+          const rotateX = -percentY * multiplier;
+          const rotateY = percentX * multiplier;
+
+          // Apply transformations to simulate a heavy, high-quality, physical tilting
+          card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.025, 1.025, 1.025)`;
+          
+          // Glare mapping
+          card.style.setProperty('--glare-x', `${x}px`);
+          card.style.setProperty('--glare-y', `${y}px`);
+        });
+
+        // Reset to default on pointer exit
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = `perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+          card.style.setProperty('--glare-x', `-999px`);
+          card.style.setProperty('--glare-y', `-999px`);
+        });
+
+        // Touch alternatives for smartphone / Notion Mobile App users
+        card.addEventListener('touchmove', (e) => {
+          if (config.warpSensitivity === 0) return;
+          const touch = e.touches[0];
+          const rect = card.getBoundingClientRect();
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+
+          if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+            const percentX = (x / rect.width) - 0.5;
+            const percentY = (y / rect.height) - 0.5;
+            
+            const multiplier = config.warpSensitivity * 0.7; // Dampened touch factor
+            const rotateX = -percentY * multiplier;
+            const rotateY = percentX * multiplier;
+
+            card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            card.style.setProperty('--glare-x', `${x}px`);
+            card.style.setProperty('--glare-y', `${y}px`);
+          }
+        });
+
+        card.addEventListener('touchend', () => {
+          card.style.transform = `perspective(800px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+          card.style.setProperty('--glare-x', `-999px`);
+          card.style.setProperty('--glare-y', `-999px`);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
