@@ -280,8 +280,8 @@
         <h5 class="text-xs font-bold uppercase tracking-wider mb-2 opacity-75" style="color: var(--text-sub)">Card 1: WhatsApp</h5>
         <div class="grid grid-cols-1 gap-2">
           <div>
-            <label class="text-[10px] font-medium opacity-70">Phone Number (with Country Code)</label>
-            <input type="text" id="wa-number" placeholder="e.g. 15551234567" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-emerald-500">
+            <label class="text-[10px] font-medium opacity-70">Phone Number (Optional - Leave blank to choose contact in App)</label>
+            <input type="text" id="wa-number" placeholder="Leave empty to select contact inside WhatsApp" class="w-full text-xs p-2 rounded-lg notion-input focus:outline-none focus:ring-1 focus:ring-emerald-500">
           </div>
           <div>
             <label class="text-[10px] font-medium opacity-70">Pre-filled Message</label>
@@ -363,7 +363,7 @@
     // Config defaults
     let config = {
       theme: 'light',
-      waNumber: '15551234567',
+      waNumber: '', // Default is empty so it opens WhatsApp directly without a hardcoded number
       waMessage: 'Hi Team, initiating quick connect from Workspace!',
       waDesc: 'Connect with workspace team instantly',
       card2Title: 'Resource Hub',
@@ -472,7 +472,7 @@
     function resetDefaults() {
       config = {
         theme: config.theme, // keep current selected theme
-        waNumber: '15551234567',
+        waNumber: '', // Clean empty default
         waMessage: 'Hi Team, initiating quick connect from Workspace!',
         waDesc: 'Connect with workspace team instantly',
         card2Title: 'Resource Hub',
@@ -509,11 +509,18 @@
 
     // Trigger WhatsApp Redirect
     function triggerWhatsApp() {
-      const phone = config.waNumber.replace(/[^0-9]/g, '');
       const text = encodeURIComponent(config.waMessage);
-      const waURL = `https://wa.me/${phone}?text=${text}`;
+      let waURL;
       
-      showToast('Redirecting to WhatsApp...');
+      // If a number exists, open directly to that number. Otherwise, open contact sharing selector.
+      if (config.waNumber && config.waNumber.trim() !== '') {
+        const phone = config.waNumber.replace(/[^0-9]/g, '');
+        waURL = `https://wa.me/${phone}?text=${text}`;
+      } else {
+        waURL = text ? `https://wa.me/?text=${text}` : `https://wa.me/`;
+      }
+      
+      showToast('Opening WhatsApp...');
       setTimeout(() => {
         window.open(waURL, '_blank');
       }, 400);
