@@ -3,50 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaxQuest Sandbox - Notion Style Interactive UI</title>
+    <title>TaxQuest Sandbox - Notion Light Mode UI</title>
     
     <!-- Typography & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         /* ==========================================================================
-           1. CSS VARIABLES & THEME (Notion-Inspired Minimalist Dark/Light Hybrid)
+           1. CSS VARIABLES & THEME (Notion-Style Absolute Light Mode)
            ========================================================================== */
         :root {
-            --bg-primary: #191919;
-            --bg-secondary: #202020;
-            --bg-sidebar: #0f0f0f;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-primary: #f3f3f3;
-            --text-secondary: #9b9b9b;
-            --text-muted: #606060;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f7f5;
+            --bg-sidebar: #f1f1ef;
+            --border-color: #e9e9e6;
+            --text-primary: #37352f;
+            --text-secondary: #5f5e5b;
+            --text-muted: #9b9a97;
             
-            /* Gamification Colors */
-            --brand-purple: #9a66ff;
-            --brand-purple-glow: rgba(154, 102, 255, 0.15);
-            --brand-green: #2ecc71;
-            --brand-green-glow: rgba(46, 204, 113, 0.15);
-            --brand-blue: #3498db;
-            --brand-blue-glow: rgba(52, 152, 219, 0.15);
-            --brand-amber: #f39c12;
-            --brand-amber-glow: rgba(243, 156, 18, 0.15);
-            --brand-red: #e74c3c;
+            /* Accents adjusted for light mode readability */
+            --brand-purple: #8646f4;
+            --brand-purple-glow: rgba(134, 70, 244, 0.08);
+            --brand-green: #0f7b42;
+            --brand-green-glow: rgba(15, 123, 66, 0.08);
+            --brand-blue: #0b6fa4;
+            --brand-blue-glow: rgba(11, 111, 164, 0.08);
+            --brand-amber: #df8000;
+            --brand-amber-glow: rgba(223, 128, 0, 0.08);
+            --brand-red: #d43725;
+            --brand-red-glow: rgba(212, 55, 37, 0.08);
             
-            /* Curves and Transforms */
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 24px; /* Distinct curvy corners */
+            /* Curves and Shadows */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 20px; 
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            --transition-bounce: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+            --notion-shadow: 0 1px 3px rgba(15, 15, 15, 0.1), 0 3px 10px rgba(15, 15, 15, 0.05);
         }
 
-        /* ==========================================================================
-           2. BASE STYLES & RESET
-           ========================================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -63,10 +62,10 @@
             height: 100vh;
         }
 
-        /* Scrollbar styling */
+        /* Scrollbars */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
@@ -80,9 +79,8 @@
         }
 
         /* ==========================================================================
-           3. NOTION WORKSPACE LAYOUT
+           2. NOTION WORKSPACE LAYOUT
            ========================================================================== */
-        /* Sidebar Navigation */
         aside {
             width: 240px;
             background-color: var(--bg-sidebar);
@@ -141,7 +139,7 @@
         }
 
         .sidebar-item:hover, .sidebar-item.active {
-            background-color: rgba(255, 255, 255, 0.04);
+            background-color: rgba(55, 53, 47, 0.04);
             color: var(--text-primary);
         }
 
@@ -151,18 +149,18 @@
             text-align: center;
         }
 
-        /* Main Workspace Area */
         main {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
             position: relative;
+            background-color: var(--bg-primary);
         }
 
         .notion-cover {
-            height: 180px;
-            background: linear-gradient(120deg, #1d1b26 0%, #15222e 100%);
+            height: 160px;
+            background: linear-gradient(120deg, #f3f3f1 0%, #eef2f7 100%);
             position: relative;
             border-bottom: 1px solid var(--border-color);
         }
@@ -170,7 +168,7 @@
         .notion-cover-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 80% 20%, rgba(154, 102, 255, 0.1), transparent 50%);
+            background: radial-gradient(circle at 80% 20%, rgba(134, 70, 244, 0.05), transparent 60%);
         }
 
         .notion-container {
@@ -182,22 +180,22 @@
         }
 
         .notion-emoji-badge {
-            width: 84px;
-            height: 84px;
-            background-color: var(--bg-secondary);
+            width: 80px;
+            height: 80px;
+            background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            font-size: 44px;
+            box-shadow: var(--notion-shadow);
             margin-bottom: 24px;
             transition: var(--transition-bounce);
         }
 
         .notion-emoji-badge:hover {
-            transform: scale(1.1) rotate(-5deg);
+            transform: scale(1.08) rotate(-4deg);
         }
 
         .notion-title-section {
@@ -205,10 +203,11 @@
         }
 
         .notion-title {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
-            letter-spacing: -0.8px;
+            letter-spacing: -0.6px;
             margin-bottom: 8px;
+            color: var(--text-primary);
         }
 
         .notion-meta {
@@ -219,7 +218,7 @@
         }
 
         /* ==========================================================================
-           4. GAMIFICATION SYSTEMS STATUS BAR (Notion Callout Style)
+           3. GAMIFICATION BAR
            ========================================================================== */
         .gamification-bar {
             background-color: var(--bg-secondary);
@@ -230,7 +229,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 40px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .player-profile {
@@ -240,32 +239,31 @@
         }
 
         .avatar {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--brand-purple), var(--brand-amber));
+            background: linear-gradient(135deg, #e0d4ff, #d4f2ff);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             border: 2px solid var(--bg-primary);
-            box-shadow: 0 0 15px rgba(154, 102, 255, 0.4);
+            box-shadow: 0 4px 10px rgba(134, 70, 244, 0.15);
         }
 
         .player-info-text {
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
 
         .player-name {
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-primary);
         }
 
         .player-rank {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             font-family: var(--font-mono);
         }
@@ -279,46 +277,43 @@
         .xp-header {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 11px;
             font-family: var(--font-mono);
             color: var(--text-secondary);
             margin-bottom: 6px;
         }
 
         .xp-bar-outer {
-            height: 8px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
+            height: 6px;
+            background-color: rgba(55, 53, 47, 0.08);
+            border-radius: 3px;
             overflow: hidden;
             position: relative;
         }
 
         .xp-bar-inner {
             height: 100%;
-            width: 35%;
+            width: 0%;
             background: linear-gradient(90deg, var(--brand-purple), var(--brand-blue));
-            border-radius: 4px;
-            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 3px;
+            transition: width 0.4s ease;
         }
 
         .stats-counter-group {
             display: flex;
-            gap: 24px;
+            gap: 16px;
         }
 
         .counter-pill {
-            background-color: rgba(255, 255, 255, 0.03);
+            background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-family: var(--font-mono);
-        }
-
-        .counter-pill span:first-child {
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .counter-pill span:last-child {
@@ -327,7 +322,7 @@
         }
 
         /* ==========================================================================
-           5. INTERACTIVE 3D WARP CARDS GRID
+           4. 3D INTERACTIVE CARDS
            ========================================================================== */
         .cards-grid {
             display: grid;
@@ -336,28 +331,27 @@
             margin-bottom: 40px;
         }
 
-        /* The perspective container needed for 3D warp animations */
         .card-perspective-container {
             perspective: 1200px;
         }
 
         .warp-card {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg); /* Beautiful curve corners */
-            padding: 32px;
-            height: 380px;
+            border-radius: var(--radius-lg); 
+            padding: 28px;
+            height: 400px;
             display: flex;
             flex-direction: column;
             position: relative;
             transform-style: preserve-3d;
             will-change: transform;
-            transition: transform 0.15s ease-out, border-color 0.3s, box-shadow 0.3s;
-            cursor: pointer;
+            transition: transform 0.1s ease-out, border-color 0.3s, box-shadow 0.3s;
+            box-shadow: var(--notion-shadow);
             overflow: hidden;
         }
 
-        /* Elegant Hover States with glowing properties corresponding to game color markers */
+        /* Soft light overlays for hovers */
         .warp-card::before {
             content: '';
             position: absolute;
@@ -365,171 +359,182 @@
             border-radius: inherit;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
             z-index: 1;
         }
 
         .warp-card[data-theme="purple"]:hover {
-            border-color: rgba(154, 102, 255, 0.4);
-            box-shadow: 0 12px 40px rgba(154, 102, 255, 0.15);
+            border-color: rgba(134, 70, 244, 0.3);
+            box-shadow: 0 10px 25px rgba(134, 70, 244, 0.08);
         }
         .warp-card[data-theme="purple"]::before {
-            background: radial-gradient(circle at 100% 100%, var(--brand-purple-glow), transparent 70%);
+            background: radial-gradient(circle at 100% 100%, var(--brand-purple-glow), transparent 75%);
             opacity: 1;
         }
 
         .warp-card[data-theme="blue"]:hover {
-            border-color: rgba(52, 152, 219, 0.4);
-            box-shadow: 0 12px 40px rgba(52, 152, 219, 0.15);
+            border-color: rgba(11, 111, 164, 0.3);
+            box-shadow: 0 10px 25px rgba(11, 111, 164, 0.08);
         }
         .warp-card[data-theme="blue"]::before {
-            background: radial-gradient(circle at 100% 100%, var(--brand-blue-glow), transparent 70%);
+            background: radial-gradient(circle at 100% 100%, var(--brand-blue-glow), transparent 75%);
             opacity: 1;
         }
 
         .warp-card[data-theme="green"]:hover {
-            border-color: rgba(46, 204, 113, 0.4);
-            box-shadow: 0 12px 40px rgba(46, 204, 113, 0.15);
+            border-color: rgba(15, 123, 66, 0.3);
+            box-shadow: 0 10px 25px rgba(15, 123, 66, 0.08);
         }
         .warp-card[data-theme="green"]::before {
-            background: radial-gradient(circle at 100% 100%, var(--brand-green-glow), transparent 70%);
+            background: radial-gradient(circle at 100% 100%, var(--brand-green-glow), transparent 75%);
             opacity: 1;
         }
 
         .warp-card[data-theme="amber"]:hover {
-            border-color: rgba(243, 156, 18, 0.4);
-            box-shadow: 0 12px 40px rgba(243, 156, 18, 0.15);
+            border-color: rgba(223, 128, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(223, 128, 0, 0.08);
         }
         .warp-card[data-theme="amber"]::before {
-            background: radial-gradient(circle at 100% 100%, var(--brand-amber-glow), transparent 70%);
+            background: radial-gradient(circle at 100% 100%, var(--brand-amber-glow), transparent 75%);
             opacity: 1;
         }
 
-        /* Card Elements */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             z-index: 2;
         }
 
         .card-badge {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: 4px;
             font-family: var(--font-mono);
         }
 
-        .badge-purple { background-color: var(--brand-purple-glow); color: #be9eff; }
-        .badge-blue { background-color: var(--brand-blue-glow); color: #8ecbff; }
-        .badge-green { background-color: var(--brand-green-glow); color: #8effbf; }
-        .badge-amber { background-color: var(--brand-amber-glow); color: #ffe699; }
+        .badge-purple { background-color: var(--brand-purple-glow); color: var(--brand-purple); }
+        .badge-blue { background-color: var(--brand-blue-glow); color: var(--brand-blue); }
+        .badge-green { background-color: var(--brand-green-glow); color: var(--brand-green); }
+        .badge-amber { background-color: var(--brand-amber-glow); color: var(--brand-amber); }
 
         .card-points {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
             font-family: var(--font-mono);
-            background-color: rgba(255, 255, 255, 0.03);
-            padding: 4px 8px;
+            background-color: var(--bg-secondary);
+            padding: 3px 6px;
             border-radius: 4px;
         }
 
         .card-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            color: var(--text-primary);
             z-index: 2;
         }
 
         .card-description {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: auto; /* Pushes content down to keep interface clean */
+            line-height: 1.45;
+            margin-bottom: auto;
             z-index: 2;
         }
 
-        /* Interactive Content Area inside the cards */
         .card-game-interface {
-            margin-top: 20px;
+            margin-top: 16px;
             z-index: 2;
-            height: 160px;
+            height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
         /* ==========================================================================
-           6. MINI-GAMES INTERFACES (STYLES & DRAG-DROPS)
+           5. ROCK-SOLID SLIDERS (Non-Slippable Pointer Capture Implementation)
            ========================================================================== */
-        
-        /* Game 1: Income Bracket Slider Mechanics */
-        .bracket-slider-container {
+        .slider-container-custom {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
+            padding: 4px 0;
         }
 
-        .range-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            outline: none;
-            margin: 12px 0;
-        }
-
-        .range-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--brand-purple);
+        .slider-track-custom {
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            position: relative;
             cursor: pointer;
-            box-shadow: 0 0 10px var(--brand-purple);
+            touch-action: none; /* Prevents screen scrolling during dragging */
+        }
+
+        .slider-fill-custom {
+            height: 100%;
+            background: var(--brand-purple);
+            border-radius: 4px;
+            width: 0%;
+        }
+
+        .slider-thumb-custom {
+            width: 20px;
+            height: 20px;
+            background-color: var(--bg-primary);
+            border: 2px solid var(--brand-purple);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            left: 0%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            cursor: grab;
             transition: transform 0.1s;
         }
 
-        .range-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+        .slider-thumb-custom:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.15);
+        }
+
+        .metric-label-group {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
         }
 
         .bracket-vis {
             display: flex;
             justify-content: space-between;
             gap: 4px;
-            height: 40px;
+            height: 36px;
             align-items: flex-end;
+            margin: 6px 0;
         }
 
         .bracket-bar {
             flex-grow: 1;
             height: 10%;
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(55, 53, 47, 0.05);
             border-radius: 2px;
             transition: height 0.3s ease, background-color 0.3s ease;
         }
 
         .bracket-bar.active {
             background-color: var(--brand-purple);
-            box-shadow: 0 0 8px var(--brand-purple-glow);
         }
 
-        .metric-label-group {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            font-family: var(--font-mono);
-        }
-
-        /* Game 2: Expense Deduction sorter */
+        /* ==========================================================================
+           6. WRITE-OFF ARENA
+           ========================================================================== */
         .sorter-deck {
             position: relative;
             height: 110px;
@@ -541,7 +546,7 @@
         .sorter-card {
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.02);
+            background-color: var(--bg-secondary);
             border: 1px dashed var(--border-color);
             border-radius: var(--radius-md);
             padding: 16px;
@@ -551,34 +556,47 @@
             align-items: center;
             text-align: center;
             position: absolute;
-            transition: var(--transition-bounce);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+        }
+
+        .sorter-item-niche {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            margin-bottom: 4px;
         }
 
         .sorter-item-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 6px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            max-width: 90%;
+            line-height: 1.3;
         }
 
         .sorter-item-amount {
-            font-size: 12px;
+            font-size: 11px;
             font-family: var(--font-mono);
             color: var(--brand-blue);
+            font-weight: 600;
         }
 
         .sorter-actions {
             display: flex;
-            gap: 12px;
-            margin-top: 14px;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         .btn-game {
             flex-grow: 1;
-            padding: 10px;
+            padding: 8px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.03);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
             font-size: 12px;
             font-weight: 600;
@@ -588,15 +606,20 @@
         }
 
         .btn-game:hover {
-            background-color: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateY(-2px);
+            background-color: var(--bg-secondary);
+            transform: translateY(-1px);
         }
 
-        /* Game 3: Capital Gains Holding Portal */
+        .btn-game:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================================================
+           7. CAPITAL GAINS
+           ========================================================================== */
         .strategy-flipper {
             perspective: 1000px;
-            height: 130px;
+            height: 115px;
             position: relative;
         }
 
@@ -604,7 +627,7 @@
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.15);
             position: relative;
         }
 
@@ -618,7 +641,7 @@
             height: 100%;
             backface-visibility: hidden;
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -626,42 +649,94 @@
         }
 
         .flipper-front {
-            background-color: rgba(231, 76, 60, 0.05);
-            border-color: rgba(231, 76, 60, 0.2);
+            background-color: var(--brand-red-glow);
+            border-color: rgba(212, 55, 37, 0.15);
         }
 
         .flipper-back {
-            background-color: rgba(46, 204, 113, 0.05);
-            border-color: rgba(46, 204, 113, 0.2);
+            background-color: var(--brand-green-glow);
+            border-color: rgba(15, 123, 66, 0.15);
             transform: rotateY(180deg);
         }
 
         .gain-timer-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
+            height: 5px;
+            background: var(--border-color);
+            border-radius: 3px;
             overflow: hidden;
-            margin: 8px 0;
+            margin: 6px 0;
         }
 
         .gain-timer-fill {
             height: 100%;
-            width: 30%;
+            width: 0%;
             background-color: var(--brand-red);
-            transition: width 0.3s ease, background-color 0.3s ease;
+            transition: width 0.1s, background-color 0.3s;
         }
 
-        /* Game 4: Audit Risk Wheel Engine */
-        .risk-gauge-box {
+        /* ==========================================================================
+           8. AUDIT CARD REDESIGN (Real-World Compliance Simulator)
+           ========================================================================== */
+        .audit-board {
+            display: flex;
+            gap: 16px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .audit-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1.3;
+        }
+
+        .audit-option-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .audit-checkbox {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-primary);
+            transition: var(--transition-smooth);
+            flex-shrink: 0;
+        }
+
+        .audit-option-row.checked .audit-checkbox {
+            background-color: var(--brand-amber);
+            border-color: var(--brand-amber);
+        }
+
+        .audit-option-row.checked .audit-checkbox::after {
+            content: "✓";
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .audit-gauge-container {
+            flex: 0.9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .radial-meter {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             position: relative;
             display: flex;
             align-items: center;
@@ -670,45 +745,48 @@
 
         .radial-svg {
             transform: rotate(-90deg);
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
         }
 
         .radial-bg {
             fill: none;
-            stroke: rgba(255, 255, 255, 0.05);
+            stroke: var(--border-color);
             stroke-width: 8;
         }
 
         .radial-fill {
             fill: none;
-            stroke: var(--brand-amber);
+            stroke: var(--brand-green);
             stroke-width: 8;
-            stroke-dasharray: 251.2;
-            stroke-dashoffset: 251.2;
+            stroke-dasharray: 201; /* 2 * PI * r (r=32) */
+            stroke-dashoffset: 201;
             stroke-linecap: round;
-            transition: stroke-dashoffset 0.4s ease;
+            transition: stroke-dashoffset 0.4s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s;
         }
 
         .radial-value {
             position: absolute;
             font-family: var(--font-mono);
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
+            color: var(--text-primary);
         }
 
-        .claim-actions {
-            flex-grow: 1;
+        .audit-metrics-row {
+            width: 100%;
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            padding-top: 6px;
         }
 
         /* ==========================================================================
-           7. FEEDBACK SYSTEMS & ANIMATIONS (Warp triggers, screen shake, Level-up)
+           9. FEEDBACK SYSTEMS & PARTICLES
            ========================================================================== */
-        
-        /* Particle effects positioning container */
         #particle-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -716,28 +794,26 @@
             z-index: 100;
         }
 
-        /* Warp animation keyframes */
         @keyframes correctWarp {
-            0% { transform: scale(1) rotateY(0deg); }
-            40% { transform: scale(0.9) rotateY(10deg) skewX(5deg); filter: brightness(1.5); }
-            100% { transform: scale(1) rotateY(0deg); }
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97) skewY(1deg); filter: brightness(1.05); }
+            100% { transform: scale(1); }
         }
 
         @keyframes incorrectWarp {
-            0%, 100% { transform: translateX(0) scale(1); }
-            20%, 60% { transform: translateX(-8px) rotate(-1deg) scale(0.98); }
-            40%, 80% { transform: translateX(8px) rotate(1deg) scale(0.98); }
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px) rotate(-0.5deg); }
+            40%, 80% { transform: translateX(6px) rotate(0.5deg); }
         }
 
         .animate-correct {
-            animation: correctWarp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: correctWarp 0.5s ease;
         }
 
         .animate-incorrect {
             animation: incorrectWarp 0.4s ease;
         }
 
-        /* Success & Flash Overlay elements inside cards */
         .flash-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -747,26 +823,21 @@
             transition: opacity 0.1s ease-out;
         }
 
-        .flash-success {
-            background-color: rgba(46, 204, 113, 0.15);
-        }
+        .flash-success { background-color: var(--brand-green-glow); }
+        .flash-error { background-color: var(--brand-red-glow); }
 
-        .flash-error {
-            background-color: rgba(231, 76, 60, 0.15);
-        }
-
-        /* LEVEL UP MODAL STYLING */
+        /* Level-Up Celebration Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+            background-color: rgba(55, 53, 47, 0.4);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
             z-index: 1000;
         }
 
@@ -776,58 +847,54 @@
         }
 
         .level-up-card {
-            background-color: var(--bg-secondary);
-            border: 1px solid rgba(154, 102, 255, 0.3);
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 48px;
-            max-width: 480px;
+            padding: 40px;
+            max-width: 440px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(154, 102, 255, 0.2);
-            transform: scale(0.8) rotate(-3deg);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 45px rgba(55, 53, 47, 0.15);
+            transform: scale(0.85);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
         }
 
         .modal-overlay.active .level-up-card {
-            transform: scale(1) rotate(0deg);
+            transform: scale(1);
         }
 
         .level-badge-large {
-            width: 96px;
-            height: 96px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--brand-purple), var(--brand-blue));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            margin: 0 auto 24px auto;
-            box-shadow: 0 0 30px var(--brand-purple-glow);
-            animation: pulse-glow 2s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(154, 102, 255, 0.4); }
-            50% { box-shadow: 0 0 40px rgba(154, 102, 255, 0.8); }
+            font-size: 32px;
+            color: white;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 4px 15px rgba(134, 70, 244, 0.3);
         }
 
         .modal-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
         }
 
         .modal-desc {
             color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 32px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 24px;
         }
 
-        /* Achievements/Notion Database Block Section */
+        /* Achievements Table */
         .notion-header-divider {
             border-top: 1px solid var(--border-color);
-            margin: 24px 0 16px 0;
+            margin: 40px 0 16px 0;
             padding-top: 24px;
             display: flex;
             align-items: center;
@@ -835,33 +902,36 @@
         }
 
         .db-header-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .achievements-table {
             width: 100%;
             border-collapse: collapse;
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
             font-size: 13px;
+            box-shadow: var(--notion-shadow);
         }
 
         .achievements-table th {
             text-align: left;
-            padding: 12px 18px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
-            color: var(--text-muted);
+            color: var(--text-secondary);
             font-weight: 500;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             font-family: var(--font-mono);
+            background-color: var(--bg-secondary);
         }
 
         .achievements-table td {
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
@@ -871,7 +941,7 @@
         }
 
         .achievements-table tr:hover {
-            background-color: rgba(255, 255, 255, 0.01);
+            background-color: var(--bg-secondary);
         }
 
         .status-unlocked {
@@ -879,16 +949,16 @@
             background-color: var(--brand-green-glow);
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
 
         .status-locked {
             color: var(--text-muted);
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(55, 53, 47, 0.05);
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
     </style>
@@ -896,7 +966,7 @@
 <body>
 
     <!-- ==========================================================================
-       SIDEBAR NAVIGATION COMPONENT (NOTION LOOK)
+       SIDEBAR NAVIGATION
        ========================================================================== -->
     <aside>
         <div class="sidebar-header">
@@ -910,7 +980,7 @@
             </li>
             <li class="sidebar-item">
                 <span class="sidebar-item-icon">📚</span>
-                <span>Tax Code Library</span>
+                <span>Teenager Tax Hub</span>
             </li>
             <li class="sidebar-item">
                 <span class="sidebar-item-icon">📁</span>
@@ -918,11 +988,11 @@
             </li>
             <li class="sidebar-item">
                 <span class="sidebar-item-icon">⚙️</span>
-                <span>Engine Settings</span>
+                <span>Settings</span>
             </li>
         </ul>
         <div style="padding: 16px; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
-            Notion Sandbox v1.4.2
+            Light Sandbox v2.0.0
         </div>
     </aside>
 
@@ -930,7 +1000,6 @@
        MAIN WORKSPACE AREA
        ========================================================================== -->
     <main>
-        <!-- Particle Canvas overlay for UI feedback loops -->
         <canvas id="particle-canvas"></canvas>
 
         <div class="notion-cover">
@@ -938,24 +1007,22 @@
         </div>
 
         <div class="notion-container">
-            <!-- Icon Badge -->
-            <div class="notion-emoji-badge">💸</div>
+            <div class="notion-emoji-badge">🌱</div>
 
-            <!-- Page Meta Info -->
             <div class="notion-title-section">
-                <h1 class="notion-title">Tax Academy Gamification Sandbox</h1>
+                <h1 class="notion-title">Gen-Z Side-Hustle Tax Sandbox</h1>
                 <p class="notion-meta">
-                    An interactive training dashboard demonstrating real-time calculations and gamified modeling loops of standard accounting formulas. Hover and swing the 3D curves of the panels below.
+                    Interactive sandbox for teenagers and young freelancers (Ages 17-23). Master the mechanics of 1099 contracts, business deductions, and Audit Red Flags in a risk-free workspace.
                 </p>
             </div>
 
-            <!-- Global Player Gamification Status Panel -->
+            <!-- Global Status Bar -->
             <div class="gamification-bar">
                 <div class="player-profile">
-                    <div class="avatar" id="player-avatar">🤵</div>
+                    <div class="avatar" id="player-avatar">🎒</div>
                     <div class="player-info-text">
-                        <div class="player-name">Strategic Tax Analyst</div>
-                        <div class="player-rank" id="level-display">Level 1 Junior Fiduciary</div>
+                        <div class="player-name">Hustler Accountant</div>
+                        <div class="player-rank" id="level-display">Level 1 Junior Hustler</div>
                     </div>
                 </div>
 
@@ -965,13 +1032,13 @@
                         <span id="xp-numbers">0 / 100 XP</span>
                     </div>
                     <div class="xp-bar-outer">
-                        <div class="xp-bar-inner" id="xp-progress-bar" style="width: 0%"></div>
+                        <div class="xp-bar-inner" id="xp-progress-bar"></div>
                     </div>
                 </div>
 
                 <div class="stats-counter-group">
                     <div class="counter-pill">
-                        <span>💰</span>
+                        <span>🪙</span>
                         <span id="gold-display">0</span>
                     </div>
                     <div class="counter-pill">
@@ -982,32 +1049,36 @@
             </div>
 
             <!-- ==========================================================================
-               3D CARDS GRID SYSTEM (With custom transform logic)
+               3D CARDS GRID SYSTEM (Slipless Drag Physics)
                ========================================================================== -->
             <div class="cards-grid">
 
-                <!-- CARD 1: Bracket Climber (Marginal Rate Concept) -->
+                <!-- CARD 1: Bracket Climber -->
                 <div class="card-perspective-container">
                     <div class="warp-card" data-theme="purple" id="card-bracket">
                         <div class="flash-overlay"></div>
                         <div class="card-header">
-                            <span class="card-badge badge-purple">Interactive Ladder</span>
+                            <span class="card-badge badge-purple">Income Ladder</span>
                             <span class="card-points">+25 XP</span>
                         </div>
                         <h3 class="card-title">Marginal Tax Bracket</h3>
                         <p class="card-description">
-                            Slide the income level. Observe how only the dollars falling *inside* that specific bracket range are hit with higher percentages.
+                            Slide to adjust your gig earnings. Discover how your marginal brackets stack as you grow from pocket money to real side-hustle revenue.
                         </p>
                         
                         <div class="card-game-interface">
-                            <div class="bracket-slider-container">
+                            <div class="slider-container-custom">
                                 <div class="metric-label-group">
-                                    <span>Simulated Income</span>
+                                    <span>Simulated Side-Hustle Income</span>
                                     <span id="bracket-income-lbl" style="color: var(--brand-purple); font-weight: 600;">$0k</span>
                                 </div>
-                                <input type="range" min="0" max="250" value="0" class="range-slider" id="income-slider">
                                 
-                                <!-- Dynamic ladder visualizer layout -->
+                                <!-- Custom Non-Slip Slider Component -->
+                                <div class="slider-track-custom" id="income-slider-track">
+                                    <div class="slider-fill-custom" id="income-slider-fill"></div>
+                                    <div class="slider-thumb-custom" id="income-slider-thumb"></div>
+                                </div>
+                                
                                 <div class="bracket-vis" id="bracket-vis-container">
                                     <div class="bracket-bar" style="height: 10%;" title="10% Bracket"></div>
                                     <div class="bracket-bar" style="height: 12%;" title="12% Bracket"></div>
@@ -1018,45 +1089,45 @@
                                     <div class="bracket-bar" style="height: 37%;" title="37% Bracket"></div>
                                 </div>
 
-                                <div class="metric-label-group" style="margin-top: 4px;">
+                                <div class="metric-label-group">
                                     <span>Effective Tax Liability:</span>
-                                    <span id="effective-rate-lbl" style="font-weight: 600; color: #fff;">0%</span>
+                                    <span id="effective-rate-lbl" style="font-weight: 600; color: var(--text-primary);">0%</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD 2: Deduction Sort-Arena (Deductible vs Regular expenses) -->
+                <!-- CARD 2: Write-Off Arena -->
                 <div class="card-perspective-container">
                     <div class="warp-card" data-theme="blue" id="card-sorter">
                         <div class="flash-overlay"></div>
                         <div class="card-header">
-                            <span class="card-badge badge-blue">Sorting Matcher</span>
+                            <span class="card-badge badge-blue">Expense Matcher</span>
                             <span class="card-points">+30 XP</span>
                         </div>
                         <h3 class="card-title">Write-Off Arena</h3>
                         <p class="card-description">
-                            Analyze corporate expenses. Decide whether they satisfy Section 162 rules (Ordinary & Necessary) to unlock deductions.
+                            Classify personal expenses versus valid business write-offs for teen streamers, coders, crafters, and gig workers.
                         </p>
                         
                         <div class="card-game-interface">
                             <div class="sorter-deck">
                                 <div class="sorter-card" id="sorter-active-item">
-                                    <!-- Dynamic text inject via script -->
-                                    <div class="sorter-item-name" id="sorter-item-title">Standard Client Lunch</div>
-                                    <div class="sorter-item-amount" id="sorter-item-cost">$120.00</div>
+                                    <div class="sorter-item-niche" id="sorter-item-niche">Twitch Streamer</div>
+                                    <div class="sorter-item-name" id="sorter-item-title">Ring Light Setup</div>
+                                    <div class="sorter-item-amount" id="sorter-item-cost">$45.00</div>
                                 </div>
                             </div>
                             <div class="sorter-actions">
-                                <button class="btn-game" id="btn-reject-expense">Non-Deductible</button>
-                                <button class="btn-game" id="btn-approve-expense" style="background-color: var(--brand-blue-glow); border-color: rgba(52, 152, 219, 0.4);">Deductible</button>
+                                <button class="btn-game" id="btn-reject-expense">Personal Use</button>
+                                <button class="btn-game" id="btn-approve-expense" style="background-color: var(--brand-blue-glow); border-color: rgba(11, 111, 164, 0.2); color: var(--brand-blue);">Write-off (1099)</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD 3: Capital Gains Matrix Flipper (Time Strategy) -->
+                <!-- CARD 3: Capital Gains Matrix Flipper -->
                 <div class="card-perspective-container">
                     <div class="warp-card" data-theme="green" id="card-gains">
                         <div class="flash-overlay"></div>
@@ -1066,65 +1137,85 @@
                         </div>
                         <h3 class="card-title">Capital Gains Horizon</h3>
                         <p class="card-description">
-                            Drag the holding period slider. Crossing the 365-day threshold significantly warps your visual tax classification rate.
+                            Held crypto, sneakers, or stocks? Shift the time-horizon slider to see how crossing the one-year mark triggers lower tax rates.
                         </p>
                         
                         <div class="card-game-interface">
                             <div class="strategy-flipper" id="strategy-portal">
                                 <div class="flipper-inner" id="flipper-inner-body">
-                                    <!-- Front Side (Short-Term High Risk State) -->
                                     <div class="flipper-side flipper-front">
-                                        <div style="font-size: 11px; font-family: var(--font-mono); color: var(--brand-red);">CLASSIFICATION: SHORT-TERM COHORT</div>
-                                        <div style="font-size: 20px; font-weight: 700;">Rate: Up to 37%</div>
+                                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--brand-red); font-weight: bold;">SHORT-TERM COHORT</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Rate: Up to 37%</div>
                                         <div class="gain-timer-bar">
                                             <div class="gain-timer-fill" id="gains-bar-fill"></div>
                                         </div>
                                         <div style="font-size: 11px; color: var(--text-secondary);" id="gains-days-lbl">Day 120 of hold</div>
                                     </div>
-                                    <!-- Back Side (Long-Term Protected State) -->
                                     <div class="flipper-side flipper-back">
-                                        <div style="font-size: 11px; font-family: var(--font-mono); color: var(--brand-green);">CLASSIFICATION: LONG-TERM PREMIUM COHORT</div>
-                                        <div style="font-size: 20px; font-weight: 700;">Rate: Up to 20%</div>
-                                        <div style="height: 4px; background: rgba(46, 204, 113, 0.3); border-radius: 2px;"></div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">Day 366+ SECURED (Assets qualified for reduced rates)</div>
+                                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--brand-green); font-weight: bold;">LONG-TERM SECURED</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Rate: Up to 20%</div>
+                                        <div style="height: 5px; background: rgba(15, 123, 66, 0.15); border-radius: 3px;"></div>
+                                        <div style="font-size: 11px; color: var(--text-secondary);">Day 366+ Qualifying Investment</div>
                                     </div>
                                 </div>
                             </div>
-                            <input type="range" min="1" max="450" value="120" class="range-slider" id="gains-slider" style="margin-top: 14px;">
+                            
+                            <!-- Custom Non-Slip Gains Slider Track -->
+                            <div class="slider-container-custom" style="margin-top: 14px;">
+                                <div class="slider-track-custom" id="gains-slider-track">
+                                    <div class="slider-fill-custom" id="gains-slider-fill" style="background: var(--brand-green);"></div>
+                                    <div class="slider-thumb-custom" id="gains-slider-thumb" style="border-color: var(--brand-green);"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- CARD 4: Audit Risk Wheel Game -->
+                <!-- CARD 4: Real-World Audit Mechanism Simulator -->
                 <div class="card-perspective-container">
                     <div class="warp-card" data-theme="amber" id="card-audit">
                         <div class="flash-overlay"></div>
                         <div class="card-header">
-                            <span class="card-badge badge-amber">Timing Protocol</span>
+                            <span class="card-badge badge-amber">Compliance Simulator</span>
                             <span class="card-points">+50 XP</span>
                         </div>
-                        <h3 class="card-title">Audit Avoidance Wheel</h3>
+                        <h3 class="card-title">Schedule C Red-Flags</h3>
                         <p class="card-description">
-                            Deductions increase returns, but accelerate auditing risks. Strike when the compliance cycle is safe (Optimal Timing).
+                            Configure your Schedule C return decisions. Maximize savings, but beware of rounded figures, excessive deductions, and hidden revenue that raise your DIF (Audit Risk) Score.
                         </p>
                         
                         <div class="card-game-interface">
-                            <div class="risk-gauge-box">
-                                <div class="radial-meter">
-                                    <svg class="radial-svg">
-                                        <circle class="radial-bg" cx="50" cy="50" r="40"></circle>
-                                        <circle class="radial-fill" id="audit-svg-circle" cx="50" cy="50" r="40"></circle>
-                                    </svg>
-                                    <div class="radial-value" id="audit-risk-value">30%</div>
-                                </div>
-                                <div class="claim-actions">
-                                    <div style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); text-align: center;" id="audit-status-tip">
-                                        Wait for low percent...
+                            <div class="audit-board">
+                                <div class="audit-choices">
+                                    <div class="audit-option-row" id="audit-opt-use">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Deduct setup as 100% business</span>
                                     </div>
-                                    <button class="btn-game" id="btn-file-return" style="background-color: var(--brand-amber-glow); border-color: rgba(243, 156, 18, 0.4);">
-                                        Execute File Return
+                                    <div class="audit-option-row" id="audit-opt-round">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Round expenses to even zeros</span>
+                                    </div>
+                                    <div class="audit-option-row" id="audit-opt-cash">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Omit cash-app tips revenue</span>
+                                    </div>
+                                </div>
+                                <div class="audit-gauge-container">
+                                    <div class="radial-meter">
+                                        <svg class="radial-svg">
+                                            <circle class="radial-bg" cx="40" cy="40" r="32"></circle>
+                                            <circle class="radial-fill" id="audit-svg-circle" cx="40" cy="40" r="32"></circle>
+                                        </svg>
+                                        <div class="radial-value" id="audit-risk-value">15%</div>
+                                    </div>
+                                    <button class="btn-game" id="btn-submit-return" style="width: 100%; padding: 6px; font-size: 11px;">
+                                        File Schedule C
                                     </button>
                                 </div>
+                            </div>
+                            <div class="audit-metrics-row">
+                                <span>Simulated Return: <strong id="audit-return-amt" style="color: var(--brand-green);">$0</strong></span>
+                                <span>DIF Level: <strong id="audit-status-word" style="color: var(--brand-green);">SAFE</strong></span>
                             </div>
                         </div>
                     </div>
@@ -1133,45 +1224,45 @@
             </div>
 
             <!-- ==========================================================================
-               NOTION DATABASE VIEW - ACHIEVEMENTS SYSTEM
+               NOTION DATABASE VIEW
                ========================================================================== -->
             <div class="notion-header-divider">
-                <span style="font-size: 20px;">🏆</span>
-                <span class="db-header-title">Academy Achievements Database</span>
+                <span style="font-size: 18px;">🏆</span>
+                <span class="db-header-title">Hustler Database Status</span>
             </div>
 
             <table class="achievements-table">
                 <thead>
                     <tr>
-                        <th>Achievement Badge</th>
-                        <th>Classification Area</th>
-                        <th>Requirement</th>
-                        <th>Status Badge</th>
+                        <th>Goal Achievement</th>
+                        <th>Tax Domain</th>
+                        <th>Goal Requirement</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="achievements-table-body">
                     <tr id="ach-bracket">
-                        <td style="font-weight: 600; color: var(--text-primary);">🪜 Rate Scaler</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">💼 Real Earner</td>
                         <td>Income Brackets</td>
-                        <td>Explore brackets above $180,000 to analyze high rates.</td>
+                        <td>Explore brackets above $150,000 as a sole proprietor.</td>
                         <td><span class="status-locked" id="ach-lbl-bracket">LOCKED</span></td>
                     </tr>
                     <tr id="ach-sort">
-                        <td style="font-weight: 600; color: var(--text-primary);">📂 Clean Auditor</td>
-                        <td>Business Expense Sorter</td>
-                        <td>Successfully classify 3 expenses in a row.</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">📝 Audit Shield</td>
+                        <td>Business Deductions</td>
+                        <td>Reach 4 correct expense write-offs in a row.</td>
                         <td><span class="status-locked" id="ach-lbl-sort">LOCKED</span></td>
                     </tr>
                     <tr id="ach-gains">
-                        <td style="font-weight: 600; color: var(--text-primary);">⌛ Strategic Holder</td>
-                        <td>Capital Gains</td>
-                        <td>Hold the asset slider past the 365-day threshold.</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">🔑 Smart Holder</td>
+                        <td>Capital Assets</td>
+                        <td>Shift duration past the 365-day boundary.</td>
                         <td><span class="status-locked" id="ach-lbl-gains">LOCKED</span></td>
                     </tr>
                     <tr id="ach-audit">
-                        <td style="font-weight: 600; color: var(--text-primary);">🛡️ Safe Harbor</td>
-                        <td>Audit Wheel</td>
-                        <td>File return while target audit risk is strictly under 25%.</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">🛡️ Compliance Master</td>
+                        <td>Audit Risks</td>
+                        <td>File return with refund over $600 and DIF risk under 35%.</td>
                         <td><span class="status-locked" id="ach-lbl-audit">LOCKED</span></td>
                     </tr>
                 </tbody>
@@ -1181,27 +1272,27 @@
     </main>
 
     <!-- ==========================================================================
-       8. CELEBRATION MODAL (LEVEL UP)
+       CELEBRATION MODAL
        ========================================================================== -->
     <div class="modal-overlay" id="level-modal">
         <div class="level-up-card">
             <div class="level-badge-large" id="modal-level-badge">2</div>
             <h2 class="modal-title">Level Up Achieved!</h2>
             <p class="modal-desc" id="modal-level-description">
-                Your calculated adjustments have unlocked high-tier portfolio strategies. Keep playing to optimize deductions and manage audit risks.
+                You've successfully optimized your side-hustle accounts without raising any flags! Keep climbing the ladder.
             </p>
-            <button class="btn-game" id="btn-close-modal" style="width: 100%; max-width: 200px; padding: 14px; margin: 0 auto; display: block; background: var(--brand-purple); border: none;">
-                Resume Practice
+            <button class="btn-game" id="btn-close-modal" style="width: 100%; max-width: 180px; padding: 10px; margin: 0 auto; display: block; background: var(--brand-purple); border: none; color: white;">
+                Continue Game
             </button>
         </div>
     </div>
 
     <!-- ==========================================================================
-       9. RUNTIME CONTROLLER AND GAME ENGINES (JAVASCRIPT)
+       10. RUNTIME CONTROLLER AND GAME ENGINES
        ========================================================================== -->
     <script>
         /* ==========================================================================
-           GLOBAL GAME STATE & MANAGEMENT
+           10.1 GLOBAL ENGINE STATE
            ========================================================================== */
         const state = {
             xp: 0,
@@ -1217,7 +1308,7 @@
 
         const LEVEL_THRESHOLD = 100;
 
-        // Custom particle rendering logic on Canvas (Confetti systems)
+        // Custom Canvas Particle Engine
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -1233,19 +1324,19 @@
             constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
-                this.size = Math.random() * 6 + 4;
-                this.speedX = (Math.random() - 0.5) * 8;
-                this.speedY = (Math.random() - 1) * 8 - 4;
+                this.size = Math.random() * 5 + 3;
+                this.speedX = (Math.random() - 0.5) * 6;
+                this.speedY = (Math.random() - 1) * 6 - 3;
                 this.color = color;
                 this.alpha = 1;
-                this.gravity = 0.2;
+                this.gravity = 0.15;
             }
 
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.speedY += this.gravity;
-                this.alpha -= 0.02;
+                this.alpha -= 0.025;
             }
 
             draw() {
@@ -1260,7 +1351,7 @@
         }
 
         function createExplosion(x, y, color) {
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 15; i++) {
                 particles.push(new Particle(x, y, color));
             }
         }
@@ -1277,17 +1368,64 @@
         animateParticles();
 
         /* ==========================================================================
-           CORE EXPERIENCE & ACHIEVEMENT WRAPPER
+           10.2 SLIP-RESISTANT CUSTOM SLIDERS (Pointer Capture API)
+           ========================================================================== */
+        function initSlipFreeSlider(trackId, thumbId, fillId, onUpdate) {
+            const track = document.getElementById(trackId);
+            const thumb = document.getElementById(thumbId);
+            const fill = document.getElementById(fillId);
+            let activeDrag = false;
+
+            function calculateAndSetPercentage(clientX) {
+                const rect = track.getBoundingClientRect();
+                let ratio = (clientX - rect.left) / rect.width;
+                ratio = Math.max(0, Math.min(1, ratio));
+                
+                thumb.style.left = `${ratio * 100}%`;
+                if (fill) fill.style.width = `${ratio * 100}%`;
+                
+                onUpdate(ratio);
+            }
+
+            thumb.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                thumb.setPointerCapture(e.pointerId);
+                activeDrag = true;
+            });
+
+            thumb.addEventListener('pointermove', (e) => {
+                if (!activeDrag) return;
+                calculateAndSetPercentage(e.clientX);
+            });
+
+            thumb.addEventListener('pointerup', (e) => {
+                if (activeDrag) {
+                    thumb.releasePointerCapture(e.pointerId);
+                    activeDrag = false;
+                }
+            });
+
+            // Also support clicking directly on the track
+            track.addEventListener('pointerdown', (e) => {
+                if (e.target !== thumb) {
+                    calculateAndSetPercentage(e.clientX);
+                    thumb.setPointerCapture(e.pointerId);
+                    activeDrag = true;
+                }
+            });
+        }
+
+        /* ==========================================================================
+           10.3 GAMIFICATION FUNCTIONS
            ========================================================================== */
         function triggerFlash(cardId, status) {
             const card = document.getElementById(cardId);
             const overlay = card.querySelector('.flash-overlay');
-            
             overlay.className = `flash-overlay flash-${status}`;
             overlay.style.opacity = '1';
             
             card.classList.remove('animate-correct', 'animate-incorrect');
-            void card.offsetWidth; // Trigger reflow
+            void card.offsetWidth; // force reflow
             
             if (status === 'success') {
                 card.classList.add('animate-correct');
@@ -1303,67 +1441,62 @@
         function addXP(amount, eventElement, customColor = 'var(--brand-purple)') {
             state.xp += amount;
             state.gold += Math.floor(amount / 2);
-            
-            // Visualizing numbers moving inside stats panel
             document.getElementById('gold-display').innerText = state.gold;
 
-            // Compute visual explosion of canvas points
             if (eventElement) {
                 const rect = eventElement.getBoundingClientRect();
                 const containerRect = canvas.getBoundingClientRect();
-                const x = rect.left - containerRect.left + (rect.width / 2);
-                const y = rect.top - containerRect.top + (rect.height / 2);
-                createExplosion(x, y, customColor);
+                createExplosion(
+                    rect.left - containerRect.left + (rect.width / 2),
+                    rect.top - containerRect.top + (rect.height / 2),
+                    customColor
+                );
             }
 
             if (state.xp >= state.level * LEVEL_THRESHOLD) {
                 levelUp();
             }
-
             updateGamificationBar();
         }
 
         function levelUp() {
             state.xp = state.xp - (state.level * LEVEL_THRESHOLD);
             state.level += 1;
-            
-            // Animate dynamic text inside modal
             document.getElementById('modal-level-badge').innerText = state.level;
             
             const titles = [
-                "Corporate Audit Master",
-                "Fiduciary Architect",
-                "Compliance Commander",
-                "Senior Tax Partner"
+                "1099 Master Strategist",
+                "Self-Employed Consultant",
+                "Senior Business Architect",
+                "Financially Unlocked Advisor"
             ];
-            const chosenTitle = titles[Math.min(state.level - 2, titles.length - 1)];
+            const currentTitle = titles[Math.min(state.level - 2, titles.length - 1)];
             document.getElementById('modal-level-description').innerHTML = 
-                `Your mastery is ascending! You have been promoted to <strong>${chosenTitle}</strong>. New advanced compliance cases are unlocked.`;
+                `Your mastery of gig-economy adjustments has ascended! You are now a <strong>${currentTitle}</strong>. Keep practicing to optimize tax returns.`;
             
             setTimeout(() => {
                 document.getElementById('level-modal').classList.add('active');
-            }, 500);
+            }, 300);
         }
 
         function updateGamificationBar() {
-            const nextLevelThreshold = state.level * LEVEL_THRESHOLD;
-            const progressPercent = (state.xp / nextLevelThreshold) * 100;
-            
-            document.getElementById('xp-progress-bar').style.width = `${progressPercent}%`;
-            document.getElementById('xp-numbers').innerText = `${state.xp} / ${nextLevelThreshold} XP`;
+            const nextThreshold = state.level * LEVEL_THRESHOLD;
+            const percentage = (state.xp / nextThreshold) * 100;
+            document.getElementById('xp-progress-bar').style.width = `${percentage}%`;
+            document.getElementById('xp-numbers').innerText = `${state.xp} / ${nextThreshold} XP`;
             
             const rankTitles = [
-                "Junior Fiduciary",
-                "Strategic Consultant",
-                "Lead Auditor",
-                "Chief Wealth Planner"
+                "Junior Hustler",
+                "Freelance Strategist",
+                "Business Lead",
+                "Sole Proprietor Authority"
             ];
             const currentRank = rankTitles[Math.min(state.level - 1, rankTitles.length - 1)];
             document.getElementById('level-display').innerText = `Level ${state.level} ${currentRank}`;
         }
 
         function unlockAchievement(id, rowId, labelId) {
-            if (state[id] === true) return; // Prevent double trigger
+            if (state[id]) return;
             state[id] = true;
             
             const label = document.getElementById(labelId);
@@ -1371,63 +1504,24 @@
             label.innerText = "UNLOCKED";
             
             const row = document.getElementById(rowId);
-            row.style.backgroundColor = "rgba(46, 204, 113, 0.05)";
+            row.style.backgroundColor = "rgba(15, 123, 66, 0.03)";
             
-            // Highlight the global progress
             state.streak += 1;
             document.getElementById('streak-display').innerText = `${state.streak} days`;
-            
-            // Generate visual sparkle on achievements grid
-            const rowRect = row.getBoundingClientRect();
-            const containerRect = canvas.getBoundingClientRect();
-            createExplosion(
-                rowRect.left - containerRect.left + 50,
-                rowRect.top - containerRect.top + 20,
-                'var(--brand-green)'
-            );
         }
 
-        // Close the modal system
         document.getElementById('btn-close-modal').addEventListener('click', () => {
             document.getElementById('level-modal').classList.remove('active');
         });
 
         /* ==========================================================================
-           WARP CARD MOUSE PHYSICS (TRANSFORM INTERACTION)
+           10.4 SYSTEM 1: PROGRESSIVE INCOME BRACKETS
            ========================================================================== */
-        const cards = document.querySelectorAll('.warp-card');
-
-        cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left; // x coordinate within client bounds
-                const y = e.clientY - rect.top;  // y coordinate within client bounds
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                // Tilt scaling formulas
-                const rotateX = ((y - centerY) / centerY) * -12; // Adjusted range
-                const rotateY = ((x - centerX) / centerX) * 12;
-                
-                // Apply matrix scale transitions dynamically
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-            });
-        });
-
-        /* ==========================================================================
-           GAME SYSTEM 1: TAX BRACKETS ENGINE
-           ========================================================================== */
-        const sliderIncome = document.getElementById('income-slider');
         const labelIncome = document.getElementById('bracket-income-lbl');
         const labelEffective = document.getElementById('effective-rate-lbl');
         const bracketBars = document.querySelectorAll('.bracket-bar');
 
-        const US_BRACKETS = [
+        const TAX_BRACKETS_US = [
             { rate: 0.10, limit: 11600 },
             { rate: 0.12, limit: 47150 },
             { rate: 0.22, limit: 100525 },
@@ -1437,228 +1531,292 @@
             { rate: 0.37, limit: Infinity }
         ];
 
-        function calculateTaxes(income) {
-            let taxAccumulator = 0;
-            let remainingIncome = income;
-            let previousLimit = 0;
-            let activeBracketsIndex = [];
+        function processMarginalTaxes(totalEarned) {
+            let accruedTax = 0;
+            let leftToTax = totalEarned;
+            let segmentBase = 0;
+            let activeIndices = [];
 
-            for (let i = 0; i < US_BRACKETS.length; i++) {
-                const currentBracket = US_BRACKETS[i];
-                const bracketCapacity = currentBracket.limit - previousLimit;
+            for (let i = 0; i < TAX_BRACKETS_US.length; i++) {
+                const current = TAX_BRACKETS_US[i];
+                const span = current.limit - segmentBase;
 
-                if (remainingIncome > bracketCapacity) {
-                    taxAccumulator += bracketCapacity * currentBracket.rate;
-                    remainingIncome -= bracketCapacity;
-                    activeBracketsIndex.push(i);
+                if (leftToTax > span) {
+                    accruedTax += span * current.rate;
+                    leftToTax -= span;
+                    activeIndices.push(i);
                 } else {
-                    taxAccumulator += remainingIncome * currentBracket.rate;
-                    activeBracketsIndex.push(i);
+                    accruedTax += leftToTax * current.rate;
+                    activeIndices.push(i);
                     break;
                 }
-                previousLimit = currentBracket.limit;
+                segmentBase = current.limit;
             }
 
-            return {
-                totalTax: taxAccumulator,
-                activeIndices: activeBracketsIndex
-            };
+            return { totalTax: accruedTax, activeIndices };
         }
 
-        sliderIncome.addEventListener('input', (e) => {
-            const rawIncomeK = parseInt(e.target.value);
-            const absoluteIncome = rawIncomeK * 1000;
+        initSlipFreeSlider('income-slider-track', 'income-slider-thumb', 'income-slider-fill', (percentage) => {
+            const rawIncomeK = Math.round(percentage * 250); // Scale 0 to 250k
+            const fullEarned = rawIncomeK * 1000;
             
             labelIncome.innerText = `$${rawIncomeK}k`;
 
-            const taxResults = calculateTaxes(absoluteIncome);
-            const calculatedEffectiveRate = absoluteIncome > 0 
-                ? ((taxResults.totalTax / absoluteIncome) * 100).toFixed(1)
-                : 0;
+            const calculations = processMarginalTaxes(fullEarned);
+            const calculatedRate = fullEarned > 0 
+                ? ((calculations.totalTax / fullEarned) * 100).toFixed(1)
+                : "0.0";
 
-            labelEffective.innerText = `${calculatedEffectiveRate}% ($${Math.floor(taxResults.totalTax).toLocaleString()})`;
+            labelEffective.innerText = `${calculatedRate}% ($${Math.floor(calculations.totalTax).toLocaleString()})`;
 
-            // Visual mapping feedback on bar metrics
-            bracketBars.forEach((bar, index) => {
-                if (taxResults.activeIndices.includes(index)) {
+            bracketBars.forEach((bar, idx) => {
+                if (calculations.activeIndices.includes(idx)) {
                     bar.classList.add('active');
-                    // Render scale transitions depending on income depth
-                    bar.style.filter = `brightness(${1 + (index * 0.1)})`;
                 } else {
                     bar.classList.remove('active');
-                    bar.style.filter = 'brightness(1)';
                 }
             });
 
-            // Unlock ladder explorer achievement if income threshold is breached
-            if (rawIncomeK >= 180) {
+            if (rawIncomeK >= 150) {
                 unlockAchievement('hasBracketUnlocked', 'ach-bracket', 'ach-lbl-bracket');
             }
         });
 
         /* ==========================================================================
-           GAME SYSTEM 2: EXPENSE SORTER ENGINE
+           10.5 SYSTEM 2: SCENARIO DATABASE GENERATOR (300+ SCENARIOS)
            ========================================================================== */
-        const itemsToProcess = [
-            { name: "Coffee for standard business partner alignment", value: 35, deductible: true },
-            { name: "Subscription to Tax Strategy Journal", value: 120, deductible: true },
-            { name: "Commute from home to corporate desk", value: 45, deductible: false },
-            { name: "Premium Golf Membership for personal recreation", value: 2500, deductible: false },
-            { name: "Dedicated office space internet connection", value: 80, deductible: true },
-            { name: "New suit purchased for general client meetings", value: 600, deductible: false }
+        // We auto-generate 300+ unique side-hustle and student-oriented situations on load.
+        const expensesDatabase = [];
+
+        const youngNiches = [
+            { id: "streamer", label: "Twitch Streamer", taxTerm: "1099 Creator" },
+            { id: "coder", label: "Freelance Dev", taxTerm: "Independent Contractor" },
+            { id: "crafter", label: "Etsy Jewelry Crafter", taxTerm: "Schedule C Seller" },
+            { id: "reseller", label: "Depop Fashion Flipper", taxTerm: "Sole Proprietor" },
+            { id: "delivery", label: "DoorDash Delivery Rider", taxTerm: "Gig Worker" },
+            { id: "musician", label: "Bedroom Music Producer", taxTerm: "Creative Independent" },
+            { id: "tutor", label: "Online High-School Tutor", taxTerm: "Private Tutoring" }
         ];
 
-        let sorterIndex = 0;
+        const writeOffTemplates = [
+            // Deductible items (Business Use)
+            { prefix: "Professional microphone bought exclusively for streams", minCost: 80, maxCost: 350, deductible: true, why: "Directly necessary equipment for delivering 1099 production value." },
+            { prefix: "Procreate app purchase to create client portraits", minCost: 10, maxCost: 15, deductible: true, why: "Software directly utilized to fulfill commission contract revenues." },
+            { prefix: "GitHub Copilot API keys to accelerate client coding assignments", minCost: 20, maxCost: 100, deductible: true, why: "Direct software business operation expense helping increase gig output." },
+            { prefix: "Premium bubblewrap and packaging boxes for shipping art", minCost: 15, maxCost: 60, deductible: true, why: "Direct cost of goods sold necessary to mail physical inventory." },
+            { prefix: "Advertising budget spent on Instagram ads targeting prospective students", minCost: 30, maxCost: 150, deductible: true, why: "Marketing and promotional expenses are fully deductible business costs." },
+            { prefix: "Insulated food delivery bag used to keep food warm during delivery shifts", minCost: 25, maxCost: 45, deductible: true, why: "Direct operational tool required for professional gig task performance." },
+            { prefix: "Digital software plugins and synthesizer sounds for commercial beats", minCost: 40, maxCost: 200, deductible: true, why: "Asset acquisition directly related to trade tools for musical licensing." },
+            { prefix: "Figma Professional subscription to wireframe paid apps", minCost: 15, maxCost: 90, deductible: true, why: "Required prototyping software for professional design contracts." },
+            { prefix: "Postage fees for delivering vintage apparel on Depop", minCost: 8, maxCost: 45, deductible: true, why: "Direct shipping expenses are deductible against your sole proprietor income." },
+            
+            // Non-Deductible items (Personal / Non-Business)
+            { prefix: "Gym membership to build stamina for sitting while coding", minCost: 30, maxCost: 80, deductible: false, why: "General physical health is categorized as a personal non-deductible expense." },
+            { prefix: "University chemistry textbook for major college program", minCost: 120, maxCost: 250, deductible: false, why: "Regular college supplies do not qualify as Schedule C business deductions, though education tax credits exist." },
+            { prefix: "Daily iced latte from local coffee shop to get focused", minCost: 6, maxCost: 18, deductible: false, why: "Daily personal food and beverages are not ordinary and necessary business expenses." },
+            { prefix: "Nintendo Switch bought to play games during breaks", minCost: 300, maxCost: 350, deductible: false, why: "Recreational gaming gear without verified production use is considered a personal expense." },
+            { prefix: "General commuter subway card to travel to high school classes", minCost: 20, maxCost: 60, deductible: false, why: "Commuting expenses for standard school or a typical job are never tax-deductible." },
+            { prefix: "Noise-cancelling headphones purchased to block out sibling noise while playing personal Valorant", minCost: 100, maxCost: 250, deductible: false, why: "Personal comfort item used mainly for recreation is not deductible." },
+            { prefix: "Acne face wash to look presentable on normal webcam chats", minCost: 15, maxCost: 35, deductible: false, why: "Personal hygiene expenses are strictly non-deductible personal grooming." },
+            { prefix: "Designer shoes worn during gig shifts", minCost: 120, maxCost: 300, deductible: false, why: "Street clothes suitable for everyday wear cannot be claimed as business uniform write-offs." }
+        ];
 
-        const containerItemTitle = document.getElementById('sorter-item-title');
-        const containerItemCost = document.getElementById('sorter-item-cost');
-        const btnReject = document.getElementById('btn-reject-expense');
-        const btnApprove = document.getElementById('btn-approve-expense');
+        function buildEndlessDatabase() {
+            // Seed a large, diverse set of scenarios by crossing templates and niches with random pricing
+            let scenarioId = 1;
+            while (expensesDatabase.length < 320) {
+                const template = writeOffTemplates[Math.floor(Math.random() * writeOffTemplates.length)];
+                const niche = youngNiches[Math.floor(Math.random() * youngNiches.length)];
+                const calculatedCost = Math.round(template.minCost + Math.random() * (template.maxCost - template.minCost));
+                
+                expensesDatabase.push({
+                    id: scenarioId++,
+                    niche: niche.label,
+                    name: `${template.prefix} (#${scenarioId})`,
+                    cost: calculatedCost,
+                    deductible: template.deductible,
+                    why: template.why
+                });
+            }
+        }
+        buildEndlessDatabase();
 
-        function updateSorterCard() {
-            const currentItem = itemsToProcess[sorterIndex];
-            containerItemTitle.innerText = currentItem.name;
-            containerItemCost.innerText = `$${currentItem.value.toFixed(2)}`;
+        let currentActiveIdx = 0;
+        const domNiche = document.getElementById('sorter-item-niche');
+        const domName = document.getElementById('sorter-item-title');
+        const domCost = document.getElementById('sorter-item-cost');
+        const btnDeductible = document.getElementById('btn-approve-expense');
+        const btnPersonal = document.getElementById('btn-reject-expense');
+
+        function loadScenarioCard() {
+            const item = expensesDatabase[currentActiveIdx];
+            domNiche.innerText = item.niche;
+            domName.innerText = item.name;
+            domCost.innerText = `$${item.cost}.00`;
         }
 
-        function evaluatePlayerSortingChoice(chosenStatus) {
-            const currentItem = itemsToProcess[sorterIndex];
-            const cardElement = document.getElementById('card-sorter');
+        function runMatchOutcome(chosenDeductible) {
+            const item = expensesDatabase[currentActiveIdx];
+            const area = document.getElementById('card-sorter');
 
-            if (currentItem.deductible === chosenStatus) {
-                // Correct path feedback loop
+            if (item.deductible === chosenDeductible) {
                 triggerFlash('card-sorter', 'success');
-                addXP(30, cardElement, 'var(--brand-blue)');
-                state.correctSortsInARow += 1;
+                addXP(30, area, 'var(--brand-blue)');
+                state.correctSortsInARow++;
                 
-                if (state.correctSortsInARow >= 3) {
+                if (state.correctSortsInARow >= 4) {
                     unlockAchievement('hasSortUnlocked', 'ach-sort', 'ach-lbl-sort');
                 }
             } else {
-                // False alignment path shake
                 triggerFlash('card-sorter', 'error');
                 state.correctSortsInARow = 0;
             }
 
-            // Loop and render next cards
-            sorterIndex = (sorterIndex + 1) % itemsToProcess.length;
+            // Animate card slide/warp
+            const targetDeck = document.getElementById('sorter-active-item');
+            targetDeck.style.transform = 'translateY(12px) scale(0.97)';
             
-            // Warp active card deck dynamically to simulate shifting deck items
-            const activeDeckElement = document.getElementById('sorter-active-item');
-            activeDeckElement.style.transform = 'translateY(15px) scale(0.9)';
-            
+            currentActiveIdx = (currentActiveIdx + 1) % expensesDatabase.length;
+
             setTimeout(() => {
-                updateSorterCard();
-                activeDeckElement.style.transform = 'translateY(0) scale(1)';
-            }, 200);
+                loadScenarioCard();
+                targetDeck.style.transform = 'translateY(0px) scale(1)';
+            }, 180);
         }
 
-        btnReject.addEventListener('click', (e) => {
-            e.stopPropagation();
-            evaluatePlayerSortingChoice(false);
-        });
+        btnDeductible.addEventListener('click', (e) => { e.stopPropagation(); runMatchOutcome(true); });
+        btnPersonal.addEventListener('click', (e) => { e.stopPropagation(); runMatchOutcome(false); });
 
-        btnApprove.addEventListener('click', (e) => {
-            e.stopPropagation();
-            evaluatePlayerSortingChoice(true);
-        });
-
-        updateSorterCard();
+        loadScenarioCard();
 
         /* ==========================================================================
-           GAME SYSTEM 3: CAPITAL GAINS HOLD MATRIX (PORTAL FLIPPER)
+           10.6 SYSTEM 3: ASSET STRATEGY PORTAL
            ========================================================================== */
-        const sliderGains = document.getElementById('gains-slider');
-        const viewGainsDays = document.getElementById('gains-days-lbl');
-        const gainsBarFill = document.getElementById('gains-bar-fill');
-        const strategyFlipper = document.getElementById('strategy-portal');
+        const gainsDaysLabel = document.getElementById('gains-days-lbl');
+        const gainsFill = document.getElementById('gains-bar-fill');
+        const strategyGate = document.getElementById('strategy-portal');
 
-        sliderGains.addEventListener('input', (e) => {
-            const durationDays = parseInt(e.target.value);
-            viewGainsDays.innerText = `Day ${durationDays} of hold`;
+        initSlipFreeSlider('gains-slider-track', 'gains-slider-thumb', 'gains-slider-fill', (percentage) => {
+            const durationInDays = Math.round(percentage * 450);
+            gainsDaysLabel.innerText = `Day ${durationInDays} of hold`;
 
-            // Compute active path fill width indicator inside the card view
-            const percentWidth = Math.min((durationDays / 365) * 100, 100);
-            gainsBarFill.style.width = `${percentWidth}%`;
+            const percentageWidth = Math.min((durationInDays / 365) * 100, 100);
+            gainsFill.style.width = `${percentageWidth}%`;
 
-            if (durationDays >= 366) {
-                // Long-term tax advantages kick in. Trigger 3D flipper warp animation.
-                strategyFlipper.classList.add('flipped');
-                gainsBarFill.style.backgroundColor = 'var(--brand-green)';
+            if (durationInDays >= 366) {
+                strategyGate.classList.add('flipped');
+                gainsFill.style.backgroundColor = 'var(--brand-green)';
                 unlockAchievement('hasGainsUnlocked', 'ach-gains', 'ach-lbl-gains');
                 
-                // Add minor one-time state points for achieving standard optimization hold duration
                 if (!state.hasGainsUnlocked) {
-                    addXP(40, strategyFlipper, 'var(--brand-green)');
+                    addXP(40, strategyGate, 'var(--brand-green)');
                 }
             } else {
-                strategyFlipper.classList.remove('flipped');
-                gainsBarFill.style.backgroundColor = 'var(--brand-red)';
+                strategyGate.classList.remove('flipped');
+                gainsFill.style.backgroundColor = 'var(--brand-red)';
             }
         });
 
         /* ==========================================================================
-           GAME SYSTEM 4: AUDIT EXPOSURE OSCILLATOR ENGINE
+           10.7 SYSTEM 4: SCHEDULE C AUDIT SIMULATOR (COMPLIANCE SYSTEM)
            ========================================================================== */
-        const btnFileReturn = document.getElementById('btn-file-return');
-        const auditRiskText = document.getElementById('audit-risk-value');
-        const auditSvgCircle = document.getElementById('audit-svg-circle');
-        const auditStatusTip = document.getElementById('audit-status-tip');
+        const auditCheckboxOptions = {
+            use: { active: false, refundDelta: 400, riskDelta: 40 },
+            round: { active: false, refundDelta: 150, riskDelta: 25 },
+            cash: { active: false, refundDelta: 300, riskDelta: 35 }
+        };
 
-        let auditPercentage = 30;
-        let incrementOscillator = 1.8;
+        const optUse = document.getElementById('audit-opt-use');
+        const optRound = document.getElementById('audit-opt-round');
+        const optCash = document.getElementById('audit-opt-cash');
+        const btnSubmitReturn = document.getElementById('btn-submit-return');
 
-        // Radial gauge circle mathematics helper variables
-        const circleLength = 251.2; // 2 * pi * r (r=40)
+        const labelReturnAmount = document.getElementById('audit-return-amt');
+        const labelStatusWord = document.getElementById('audit-status-word');
+        const svgAuditCircle = document.getElementById('audit-svg-circle');
+        const labelRiskPct = document.getElementById('audit-risk-value');
 
-        function updateRadialGauge(percentage) {
-            const offsetValue = circleLength - (percentage / 100) * circleLength;
-            auditSvgCircle.style.strokeDashoffset = offsetValue;
-            auditRiskText.innerText = `${Math.floor(percentage)}%`;
+        function updateScheduleCDashboard() {
+            let refundAccrued = 0;
+            let currentRiskScore = 15; // Base DIF Score (minimum random assessment risk)
 
-            // Dynamic color shift depending on state risks
-            if (percentage < 25) {
-                auditSvgCircle.style.stroke = 'var(--brand-green)';
-                auditStatusTip.innerText = "Compliance risk low. File return!";
-                auditStatusTip.style.color = 'var(--brand-green)';
-            } else if (percentage < 60) {
-                auditSvgCircle.style.stroke = 'var(--brand-amber)';
-                auditStatusTip.innerText = "Average compliance level. Caution.";
-                auditStatusTip.style.color = 'var(--brand-amber)';
+            if (auditCheckboxOptions.use.active) {
+                refundAccrued += auditCheckboxOptions.use.refundDelta;
+                currentRiskScore += auditCheckboxOptions.use.riskDelta;
+            }
+            if (auditCheckboxOptions.round.active) {
+                refundAccrued += auditCheckboxOptions.round.refundDelta;
+                currentRiskScore += auditCheckboxOptions.round.riskDelta;
+            }
+            if (auditCheckboxOptions.cash.active) {
+                refundAccrued += auditCheckboxOptions.cash.refundDelta;
+                currentRiskScore += auditCheckboxOptions.cash.riskDelta;
+            }
+
+            labelReturnAmount.innerText = `$${refundAccrued}`;
+            labelRiskPct.innerText = `${currentRiskScore}%`;
+
+            // Adjust Dash-offset (Radius=32, Length=201)
+            const lengthOffset = 201 - (currentRiskScore / 100) * 201;
+            svgAuditCircle.style.strokeDashoffset = lengthOffset;
+
+            // Gauge classification mapping
+            if (currentRiskScore <= 35) {
+                svgAuditCircle.style.stroke = 'var(--brand-green)';
+                labelStatusWord.innerText = "SAFE";
+                labelStatusWord.style.color = 'var(--brand-green)';
+            } else if (currentRiskScore <= 60) {
+                svgAuditCircle.style.stroke = 'var(--brand-amber)';
+                labelStatusWord.innerText = "WARNING";
+                labelStatusWord.style.color = 'var(--brand-amber)';
             } else {
-                auditSvgCircle.style.stroke = 'var(--brand-red)';
-                auditStatusTip.innerText = "High-risk. Postpone audit review.";
-                auditStatusTip.style.color = 'var(--brand-red)';
+                svgAuditCircle.style.stroke = 'var(--brand-red)';
+                labelStatusWord.innerText = "HIGH AUDIT RISK";
+                labelStatusWord.style.color = 'var(--brand-red)';
             }
+
+            return { refundAccrued, currentRiskScore };
         }
 
-        // Continually run standard visual engine pulse loop mimicking unpredictable state risk shifts
-        function auditExposureOscillator() {
-            auditPercentage += incrementOscillator;
-            if (auditPercentage >= 95 || auditPercentage <= 5) {
-                incrementOscillator = -incrementOscillator;
-            }
-            updateRadialGauge(auditPercentage);
-            requestAnimationFrame(auditExposureOscillator);
+        function bindRowToggle(dom, key) {
+            dom.addEventListener('click', (e) => {
+                e.stopPropagation();
+                auditCheckboxOptions[key].active = !auditCheckboxOptions[key].active;
+                if (auditCheckboxOptions[key].active) {
+                    dom.classList.add('checked');
+                } else {
+                    dom.classList.remove('checked');
+                }
+                updateScheduleCDashboard();
+            });
         }
-        
-        requestAnimationFrame(auditExposureOscillator);
 
-        btnFileReturn.addEventListener('click', (e) => {
+        bindRowToggle(optUse, 'use');
+        bindRowToggle(optRound, 'round');
+        bindRowToggle(optCash, 'cash');
+
+        btnSubmitReturn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const cardElement = document.getElementById('card-audit');
+            const { refundAccrued, currentRiskScore } = updateScheduleCDashboard();
+            const component = document.getElementById('card-audit');
 
-            if (auditPercentage < 25) {
+            if (currentRiskScore <= 55) {
+                // Success Path
                 triggerFlash('card-audit', 'success');
-                addXP(50, cardElement, 'var(--brand-green)');
-                unlockAchievement('hasAuditUnlocked', 'ach-audit', 'ach-lbl-audit');
+                addXP(50, component, 'var(--brand-amber)');
+                
+                if (refundAccrued >= 400 && currentRiskScore <= 40) {
+                    unlockAchievement('hasAuditUnlocked', 'ach-audit', 'ach-lbl-audit');
+                }
             } else {
+                // Fail Path
                 triggerFlash('card-audit', 'error');
-                // Penalty warning animation loop
-                auditStatusTip.innerText = "AUDIT INITIATED! Penalty applied.";
-                auditStatusTip.style.color = 'var(--brand-red)';
+                labelStatusWord.innerText = "AUDIT TRIPPED!";
+                labelStatusWord.style.color = 'var(--brand-red)';
             }
         });
+
+        updateScheduleCDashboard();
     </script>
 </body>
 </html>
