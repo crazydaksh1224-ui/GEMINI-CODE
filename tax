@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxMaster - Notion Style Learning</title>
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & NOTION DESIGN SYSTEM
+           ========================================================================== */
+        :root {
+            /* Typography */
+            --font-stack: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            --font-size-base: 15px;
+            --font-size-sm: 13px;
+            --font-size-lg: 18px;
+            --font-size-xl: 24px;
+            --font-size-xxl: 32px;
+            
+            /* Colors - Light Theme (Notion Inspired) */
+            --bg-body: #ffffff;
+            --bg-sidebar: #fbfbfa;
+            --bg-hover: rgba(55, 53, 47, 0.08);
+            --bg-hover-dark: rgba(55, 53, 47, 0.16);
+            --bg-card: #ffffff;
+            --bg-card-back: #f8f8f7;
+            
+            --text-main: #37352f;
+            --text-muted: rgba(55, 53, 47, 0.65);
+            --text-placeholder: rgba(55, 53, 47, 0.4);
+            
+            --border-color: rgba(55, 53, 47, 0.16);
+            --border-light: rgba(55, 53, 47, 0.09);
+            
+            /* Gamification Colors */
+            --color-xp: #0f7b6c;
+            --color-xp-bg: #e2f1ef;
+            --color-level: #eb5757;
+            --color-locked: #e9e5e3;
+            --color-success: #0f7b6c;
+            
+            /* Layout & Spacing */
+            --sidebar-width: 260px;
+            --content-max-width: 900px;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Shadows & Effects */
+            --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.1);
+            --shadow-md: 0 4px 12px rgba(15, 15, 15, 0.1);
+            --shadow-card: 0 8px 24px rgba(15, 15, 15, 0.08);
+            --shadow-card-hover: 0 16px 40px rgba(15, 15, 15, 0.15);
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ==========================================================================
+           2. RESET & BASE STYLES
+           ========================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            font-size: var(--font-size-base);
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-main);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: var(--font-stack);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* ==========================================================================
+           3. LAYOUT & STRUCTURE
+           ========================================================================== */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 0;
+            flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: var(--color-xp-bg);
+            color: var(--color-xp);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .user-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .nav-section {
+            margin-top: 16px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 0 16px 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            color: var(--text-main);
+            font-size: var(--font-size-sm);
+            transition: background var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-hover-dark);
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .topbar {
+            height: 48px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .content-wrapper {
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+            padding: 40px 60px 100px;
+            width: 100%;
+        }
+
+        /* ==========================================================================
+           4. GAMIFICATION WIDGETS
+           ========================================================================== */
+        .gamification-header {
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease forwards;
+        }
+
+        .page-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .page-title {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            background: var(--bg-sidebar);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .stat-box {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .stat-value span {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: var(--border-light);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--color-xp);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Level Badge */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-level);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(235, 87, 87, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        /* ==========================================================================
+           5. 3D WARP & TRANSFORM CARD ENGINE
+           ========================================================================== */
+        .module-section {
+            margin-bottom: 48px;
+        }
+
+        .module-title {
+            font-size: var(--font-size-xl);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .module-desc {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            /* Prevents overlapping and allows natural flow */
+            align-items: stretch;
+        }
+
+        /* The 3D Scene / Perspective Container */
+        .card-scene {
+            perspective: 1200px;
+            width: 100%;
+            min-height: 320px;
+            cursor: pointer;
+        }
+
+        /* The Card Wrapper handling 3D transformations */
+        .warp-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: var(--radius-xl);
+        }
+
+        .card-scene:hover .warp-card {
+            /* Handled dynamically via JS for precision, but fallback here */
+            transform: scale3d(1.02, 1.02, 1.02);
+            transition: transform 0.1s linear; /* Fast response on move */
+        }
+
+        /* Return to normal smoothly when mouse leaves */
+        .card-scene.leave .warp-card {
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
+        }
+
+        /* Front and Back Faces */
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-light);
+            background-color: var(--bg-card);
+            transform-style: preserve-3d;
+        }
+
+        /* 3D Floating Elements inside the card */
+        .card-face > * {
+            transform: translateZ(40px); /* Pushes content out for parallax */
+        }
+
+        /* Back face is rotated initially */
+        .card-face.back {
+            transform: rotateY(180deg);
+            background-color: var(--bg-card-back);
+        }
+
+        /* Flip Action */
+        .card-scene.is-flipped .warp-card {
+            transform: rotateY(180deg) scale3d(1.05, 1.05, 1.05);
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy flip */
+        }
+        
+        .card-scene.is-flipped:hover .warp-card {
+            /* Dynamic JS will take over, but base state when flipped */
+        }
+
+        /* Card Content Styles */
+        .card-tag {
+            align-self: flex-start;
+            background: rgba(15, 123, 108, 0.1);
+            color: var(--color-xp);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: auto;
+        }
+
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+            transform: translateZ(60px) !important; /* Extra pop */
+        }
+
+        .card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .card-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .card-action {
+            margin-top: auto;
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 13px;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transform: translateZ(30px) !important;
+        }
+
+        .card-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-color);
+        }
+
+        /* Glare effect for warp animation */
+        .glare {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: var(--radius-xl);
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+            transition: opacity 0.3s;
+            transform: translateZ(1px); /* Keep glare flat on card */
+        }
+
+        .card-scene:hover .glare {
+            opacity: 1;
+        }
+
+        /* Back Card specific */
+        .card-face.back {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .back-title {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--color-xp);
+        }
+
+        .back-text {
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .btn-claim {
+            background: var(--text-main);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform var(--transition-fast), background var(--transition-fast);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-claim:hover {
+            background: black;
+            transform: scale(1.05);
+        }
+
+        .btn-claim:active {
+            transform: scale(0.95);
+        }
+
+        .btn-claim.claimed {
+            background: var(--color-success);
+            pointer-events: none;
+        }
+
+        /* Locked State */
+        .card-scene.locked .card-face.front {
+            background-color: var(--color-locked);
+            border: 1px dashed var(--border-color);
+            opacity: 0.8;
+            filter: grayscale(100%);
+        }
+
+        .card-scene.locked .card-tag {
+            background: rgba(0,0,0,0.05);
+            color: var(--text-muted);
+        }
+
+        .card-scene.locked .card-action {
+            background: transparent;
+            color: var(--text-muted);
+            border-style: dashed;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateZ(50px) !important;
+            font-size: 40px;
+            background: rgba(255,255,255,0.9);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==========================================================================
+           6. ANIMATIONS & PARTICLES
+           ========================================================================== */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(235, 87, 87, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(235, 87, 87, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(235, 87, 87, 0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 0;
+            z-index: 9999;
+            pointer-events: none;
+            animation: fall 3s ease-in forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0); opacity: 0; }
+        }
+
+        /* ==========================================================================
+           7. MEDIA QUERIES (Responsive Design)
+           ========================================================================== */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-light);
+                padding: 10px;
+            }
+            .sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+            }
+            .nav-section { margin-top: 0; }
+            .nav-title { display: none; }
+            .nav-item { padding: 8px; border-radius: 8px; }
+            .nav-item span { display: none; }
+            .content-wrapper { padding: 24px 16px; }
+            .stats-container { flex-direction: column; gap: 12px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-avatar">TM</div>
+            <div class="user-info">
+                <span class="user-name">Tax Learner</span>
+                <span class="user-role">Level <span id="sidebar-level">1</span> Taxpayer</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-title">Modules</div>
+                <div class="nav-item active">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+                    <span>Leaderboard</span>
+                </div>
+                <div class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    <span>Glossary</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Settings</div>
+                <div class="nav-item">
+                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 C9.77,21.83,9.96,22,10.2,22h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                    <span>Preferences</span>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="breadcrumb">
+                <span>TaxMaster</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                <span style="color: var(--text-main); font-weight: 500;">Learning Dashboard</span>
+            </div>
+            <div class="topbar-actions">
+                <span class="level-badge" id="top-level-badge">Level 1</span>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            
+            <!-- Hero / Gamification Header -->
+            <div class="gamification-header">
+                <span class="page-icon">💸</span>
+                <h1 class="page-title">Tax Concept Masterclass</h1>
+                
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--color-xp)"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            Total XP
+                        </div>
+                        <div class="stat-value" id="xp-display">0 <span>/ 1000 XP</span></div>
+                        <div class="progress-wrapper">
+                            <div class="progress-track">
+                                <div class="progress-fill" id="xp-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="#eb5757"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 9h-2V7h-2v5H6v2h2v5h2v-5h2v-2z"/></svg>
+                            Concepts Mastered
+                        </div>
+                        <div class="stat-value"><span id="concepts-display" style="font-size: 24px; font-weight: 700; color: var(--text-main);">0</span> <span>/ 6</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEVEL 1 MODULE -->
+            <section class="module-section" id="module-1">
+                <h2 class="module-title">
+                    <span style="background: var(--bg-hover-dark); padding: 4px 8px; border-radius: 6px; font-size: 14px;">Level 1</span>
+                    The Foundations
+                </h2>
+                <p class="module-desc">Understand the bedrock of the tax system before diving deeper.</p>
+                
+                <div class="card-grid">
+                    
+                    <!-- Card 1: Tax Brackets -->
+                    <div class="card-scene" data-xp="100" data-id="card1">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <!-- FRONT -->
+                            <div class="card-face front">
+                                <div class="card-tag">Income Tax</div>
+                                <div class="card-icon">📈</div>
+                                <h3 class="card-title">The Bracket Enigma</h3>
+                                <p class="card-text">"If I enter a higher tax bracket, will my entire income be taxed at that higher rate?"</p>
+                                <button class="card-action">Tap to Reveal Truth</button>
+                            </div>
+                            <!-- BACK -->
+                            <div class="card-face back">
+                                <h3 class="back-title">False! Progressive Tax</h3>
+                                <p class="back-text">The US uses a <strong>progressive tax system</strong>. Only the income that falls <em>within</em> the new bracket is taxed at the higher rate, not your entire income. You never take home less money by earning more!</p>
+                                <button class="btn-claim">Mastered! (+100 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Standard vs Itemized -->
+                    <div class="card-scene" data-xp="150" data-id="card2">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <div class="card-face front">
+                                <div class="card-tag">Deductions</div>
+                                <div class="card-icon">🛡️</div>
+                                <h3 class="card-title">Deduction Defender</h3>
+                                <p class="card-text">You have $8,000 in deductible expenses, but the Standard Deduction is $13,850. Which should you choose?</p>
+                                <button class="card-action">Solve the Dilemma</button>
+                            </div>
+                            <div class="card-face back">
+                                <h3 class="back-title">Take the Standard!</h3>
+                                <p class="back-text">Always choose whichever reduces your taxable income more! A <strong>deduction</strong> lowers the income you are taxed on. Since $13,850 > $8,000, standard wins. You do not need to keep receipts for the standard deduction.</p>
+                                <button class="btn-claim">Mastered! (+150 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- LEVEL 2 MODULE (Initially Locked visually via JS/CSS class) -->
+            <section class="module-section" id="module-2">
+                <h2 class="module-title" style="color: var(--text-muted);">
+                    <span style="background: var(--color-locked); padding: 4px 8px; border-radius: 6px; font-size: 14px;">Level 2</span>
+                    Advanced Strategies
+                </h2>
+                <p class="module-desc">Unlock by gaining 250 XP in Level 1.</p>
+                
+                <div class="card-grid">
+                    
+                    <!-- Card 3: Capital Gains (Locked) -->
+                    <div class="card-scene locked" data-xp="200" data-id="card3" data-required-xp="250">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <div class="card-face front">
+                                <div class="lock-icon">🔒</div>
+                                <div class="card-tag">Investments</div>
+                                <div class="card-icon">🏛️</div>
+                                <h3 class="card-title">Capital Gains Guru</h3>
+                                <p class="card-text">You bought a stock and it grew 50%. You sell it after 11 months. Good idea?</p>
+                                <button class="card-action">Requires Level 2</button>
+                            </div>
+                            <div class="card-face back">
+                                <h3 class="back-title">Wait 1 More Month!</h3>
+                                <p class="back-text">Selling before 1 year triggers <strong>Short-Term Capital Gains</strong> (taxed like normal income, up to 37%). Waiting 1+ year triggers <strong>Long-Term Capital Gains</strong> (taxed at 0%, 15%, or 20%). Patience pays!</p>
+                                <button class="btn-claim">Mastered! (+200 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Credits vs Deductions (Locked) -->
+                    <div class="card-scene locked" data-xp="250" data-id="card4" data-required-xp="250">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <div class="card-face front">
+                                <div class="lock-icon">🔒</div>
+                                <div class="card-tag">Tax Credits</div>
+                                <div class="card-icon">💎</div>
+                                <h3 class="card-title">Credit Crusader</h3>
+                                <p class="card-text">Which is better: A $1,000 Tax Deduction or a $1,000 Tax Credit?</p>
+                                <button class="card-action">Requires Level 2</button>
+                            </div>
+                            <div class="card-face back">
+                                <h3 class="back-title">Tax Credit Wins!</h3>
+                                <p class="back-text">A <strong>Deduction</strong> lowers your taxable income (saving you a percentage based on your bracket). A <strong>Credit</strong> is a dollar-for-dollar reduction of the actual tax you owe. $1k credit = $1k more in your pocket!</p>
+                                <button class="btn-claim">Mastered! (+250 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+             <!-- LEVEL 3 MODULE -->
+             <section class="module-section" id="module-3">
+                <h2 class="module-title" style="color: var(--text-muted);">
+                    <span style="background: var(--color-locked); padding: 4px 8px; border-radius: 6px; font-size: 14px;">Level 3</span>
+                    The Final Bosses
+                </h2>
+                <p class="module-desc">Unlock by gaining 700 XP.</p>
+                
+                <div class="card-grid">
+                    
+                    <!-- Card 5: W2 vs 1099 -->
+                    <div class="card-scene locked" data-xp="150" data-id="card5" data-required-xp="700">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <div class="card-face front">
+                                <div class="lock-icon">🔒</div>
+                                <div class="card-tag">Employment</div>
+                                <div class="card-icon">⚔️</div>
+                                <h3 class="card-title">W-2 vs 1099 Battle</h3>
+                                <p class="card-text">As a freelancer (1099), why is your tax bill suddenly so high at the end of the year?</p>
+                                <button class="card-action">Requires Level 3</button>
+                            </div>
+                            <div class="card-face back">
+                                <h3 class="back-title">Self-Employment Tax!</h3>
+                                <p class="back-text">W-2 employees split payroll taxes (FICA) with their employer. As a 1099 contractor, you are both employee and employer! You must pay the full 15.3% <strong>Self-Employment Tax</strong>. Keep track of write-offs!</p>
+                                <button class="btn-claim">Mastered! (+150 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Depreciation -->
+                    <div class="card-scene locked" data-xp="150" data-id="card6" data-required-xp="700">
+                        <div class="warp-card">
+                            <div class="glare"></div>
+                            <div class="card-face front">
+                                <div class="lock-icon">🔒</div>
+                                <div class="card-tag">Business Assets</div>
+                                <div class="card-icon">🏚️</div>
+                                <h3 class="card-title">Phantom Expense</h3>
+                                <p class="card-text">You bought a heavy duty truck for your business. Can you deduct the entire cost today?</p>
+                                <button class="card-action">Requires Level 3</button>
+                            </div>
+                            <div class="card-face back">
+                                <h3 class="back-title">Hello, Depreciation!</h3>
+                                <p class="back-text">Normally, large assets must be <strong>depreciated</strong> (deducted slowly over several years). However, loopholes like Section 179 or Bonus Depreciation sometimes allow you to deduct the entire purchase price in year 1!</p>
+                                <button class="btn-claim">Mastered! (+150 XP)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    /**
+     * ==========================================================================
+     * TAXMASTER - INTERACTIVITY & GAMIFICATION LOGIC
+     * ==========================================================================
+     * Handles 3D Warp effect, Card Flipping, XP Management, and Unlocks.
+     */
+
+    document.addEventListener("DOMContentLoaded", () => {
+        
+        // --- State Management ---
+        const state = {
+            xp: 0,
+            maxXP: 1000,
+            level: 1,
+            conceptsMastered: 0,
+            totalConcepts: 6,
+            masteredCards: new Set()
+        };
+
+        // --- DOM Elements ---
+        const cards = document.querySelectorAll('.card-scene');
+        const xpDisplay = document.getElementById('xp-display');
+        const xpProgress = document.getElementById('xp-progress');
+        const conceptsDisplay = document.getElementById('concepts-display');
+        const levelBadges = document.querySelectorAll('.level-badge, #sidebar-level');
+
+        // --- 1. 3D WARP ANIMATION LOGIC ---
+        // We apply a transform: rotateX and rotateY based on cursor position relative to card center.
+        cards.forEach(card => {
+            const warpWrapper = card.querySelector('.warp-card');
+            const glare = card.querySelector('.glare');
+            let bounds;
+
+            // Mouse Enter - initialize tracking
+            card.addEventListener('mouseenter', () => {
+                // If card is locked, disable 3D effect
+                if(card.classList.contains('locked')) return;
+                
+                bounds = card.getBoundingClientRect();
+                card.classList.remove('leave');
+            });
+
+            // Mouse Move - apply math for warp
+            card.addEventListener('mousemove', (e) => {
+                if(card.classList.contains('locked')) return;
+                
+                if (!bounds) bounds = card.getBoundingClientRect();
+                
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                const leftX = mouseX - bounds.x;
+                const topY = mouseY - bounds.y;
+                const center = {
+                    x: leftX - bounds.width / 2,
+                    y: topY - bounds.height / 2
+                };
+                
+                // Rotation intensity (lower is more intense, higher is subtle)
+                const distance = Math.sqrt(center.x ** 2 + center.y ** 2);
+                
+                // Notion style prefers subtle animations, limit the max rotation
+                const maxRotation = 12; // degrees
+                const rotateX = (center.y / (bounds.height / 2)) * -maxRotation;
+                const rotateY = (center.x / (bounds.width / 2)) * maxRotation;
+                
+                // If card is flipped, reverse the Y rotation to feel natural
+                const isFlipped = card.classList.contains('is-flipped');
+                const finalRotateY = isFlipped ? rotateY + 180 : rotateY;
+
+                // Scale up slightly on hover
+                const scale = isFlipped ? 1.05 : 1.02;
+
+                // Apply transform
+                warpWrapper.style.transform = `
+                    rotateX(${rotateX}deg) 
+                    rotateY(${finalRotateY}deg) 
+                    scale3d(${scale}, ${scale}, ${scale})
+                `;
+
+                // Move glare
+                if (glare) {
+                    const angle = Math.atan2(center.y, center.x) * 180 / Math.PI - 90;
+                    glare.style.background = `linear-gradient(${angle}deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 80%)`;
+                }
+            });
+
+            // Mouse Leave - reset to idle
+            card.addEventListener('mouseleave', () => {
+                if(card.classList.contains('locked')) return;
+                
+                card.classList.add('leave');
+                bounds = null;
+                
+                // Reset transform but respect flip state
+                const isFlipped = card.classList.contains('is-flipped');
+                if (isFlipped) {
+                    warpWrapper.style.transform = `rotateY(180deg) scale3d(1, 1, 1)`;
+                } else {
+                    warpWrapper.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                }
+            });
+
+            // --- 2. CARD FLIPPING LOGIC ---
+            card.addEventListener('click', (e) => {
+                // Ignore if locked or clicking the claim button
+                if(card.classList.contains('locked')) {
+                    shakeElement(card); // Feedback that it's locked
+                    return;
+                }
+                
+                if(e.target.classList.contains('btn-claim')) return;
+
+                // Toggle flip
+                const isFlipped = card.classList.toggle('is-flipped');
+                
+                // Force a reset of bounds to fix orientation glitch mid-flip
+                bounds = card.getBoundingClientRect();
+                
+                if (!isFlipped) {
+                    warpWrapper.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                } else {
+                    warpWrapper.style.transform = `rotateY(180deg) scale3d(1.05, 1.05, 1.05)`;
+                }
+            });
+
+            // --- 3. GAMIFICATION LOGIC (CLAIM XP) ---
+            const btnClaim = card.querySelector('.btn-claim');
+            if (btnClaim) {
+                btnClaim.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card flip
+                    const cardId = card.getAttribute('data-id');
+                    
+                    if (state.masteredCards.has(cardId)) return; // Already claimed
+
+                    const xpVal = parseInt(card.getAttribute('data-xp'), 10);
+                    
+                    // Update State
+                    state.xp += xpVal;
+                    state.conceptsMastered += 1;
+                    state.masteredCards.add(cardId);
+
+                    // Update UI
+                    updateDashboard();
+                    checkLevelUps();
+                    
+                    // Button UI Change
+                    btnClaim.classList.add('claimed');
+                    btnClaim.innerHTML = `✓ Claimed`;
+                    
+                    // Celebration Particle Effect
+                    createConfetti(e.clientX, e.clientY);
+                    
+                    // Optionally unflip card after short delay
+                    setTimeout(() => {
+                        card.classList.remove('is-flipped');
+                        warpWrapper.style.transform = `rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                    }, 1500);
+                });
+            }
+        });
+
+        // --- Core Application Functions ---
+
+        function updateDashboard() {
+            // Update Text
+            xpDisplay.innerHTML = `${state.xp} <span>/ ${state.maxXP} XP</span>`;
+            conceptsDisplay.innerText = state.conceptsMastered;
+            
+            // Animate Progress Bar
+            const percentage = Math.min((state.xp / state.maxXP) * 100, 100);
+            xpProgress.style.width = `${percentage}%`;
+        }
+
+        function checkLevelUps() {
+            let newLevel = 1;
+            if (state.xp >= 700) newLevel = 3;
+            else if (state.xp >= 250) newLevel = 2;
+
+            if (newLevel > state.level) {
+                state.level = newLevel;
+                
+                // Update Badges
+                levelBadges.forEach(badge => {
+                    if (badge.id === 'sidebar-level') {
+                        badge.innerText = state.level;
+                    } else {
+                        badge.innerText = `Level ${state.level}`;
+                        // Trigger pulse animation restart
+                        badge.style.animation = 'none';
+                        void badge.offsetWidth; 
+                        badge.style.animation = 'pulse 2s infinite';
+                    }
+                });
+
+                // Heavy Confetti for Level Up
+                for(let i=0; i<30; i++) {
+                    setTimeout(() => createConfetti(window.innerWidth/2, window.innerHeight/2, true), i * 50);
+                }
+            }
+
+            // Unlock Cards
+            cards.forEach(card => {
+                if (card.classList.contains('locked')) {
+                    const reqXp = parseInt(card.getAttribute('data-required-xp'), 10);
+                    if (state.xp >= reqXp) {
+                        unlockCard(card);
+                    }
+                }
+            });
+        }
+
+        function unlockCard(card) {
+            // Visual transition for unlocking
+            card.classList.remove('locked');
+            
+            const frontFace = card.querySelector('.card-face.front');
+            const lockIcon = card.querySelector('.lock-icon');
+            const actionBtn = card.querySelector('.card-action');
+            const header = card.closest('section').querySelector('.module-title span');
+            
+            // Remove Lock
+            if (lockIcon) {
+                lockIcon.style.transform = 'translate(-50%, -50%) scale(0)';
+                lockIcon.style.opacity = '0';
+                setTimeout(() => lockIcon.remove(), 300);
+            }
+            
+            // Update UI elements from locked state
+            actionBtn.innerText = "Tap to Reveal Truth";
+            
+            // If header exists and still shows locked color, update it
+            if (header && header.style.background.includes('var(--color-locked)')) {
+                header.style.background = 'var(--bg-hover-dark)';
+                header.style.color = 'var(--text-main)';
+                header.parentElement.style.color = 'var(--text-main)';
+                const desc = header.parentElement.nextElementSibling;
+                if (desc) desc.innerText = "Module Unlocked! Dive in.";
+            }
+
+            // Pop Animation
+            card.style.animation = 'popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+        }
+
+        // --- Utility Functions ---
+
+        function shakeElement(el) {
+            el.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0)' }
+            ], {
+                duration: 300,
+                iterations: 1
+            });
+        }
+
+        function createConfetti(x, y, isLevelUp = false) {
+            const colors = ['#0f7b6c', '#eb5757', '#f2c94c', '#2d9cdb'];
+            for (let i = 0; i < (isLevelUp ? 5 : 10); i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('confetti');
+                
+                // Randomize properties
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 8 + 4;
+                const spreadX = (Math.random() - 0.5) * (isLevelUp ? window.innerWidth : 300);
+                
+                particle.style.background = color;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Position at click/center
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                // Custom CSS variables for animation path
+                particle.style.setProperty('--tx', `${spreadX}px`);
+                
+                document.body.appendChild(particle);
+                
+                // Add custom dynamic animation
+                particle.animate([
+                    { transform: `translate(0, 0) rotate(0deg) scale(1)`, opacity: 1 },
+                    { transform: `translate(${spreadX}px, -100px) rotate(180deg) scale(1.2)`, opacity: 1, offset: 0.2 },
+                    { transform: `translate(${spreadX * 1.5}px, ${window.innerHeight}px) rotate(720deg) scale(0)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 1000 + 1500,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    fill: 'forwards'
+                });
+
+                // Cleanup
+                setTimeout(() => {
+                    particle.remove();
+                }, 2500);
+            }
+        }
+        
+        // Initial setup for Dashboard
+        updateDashboard();
+    });
+</script>
+
+</body>
+</html>
