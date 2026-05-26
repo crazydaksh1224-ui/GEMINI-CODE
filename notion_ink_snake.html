@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Minimalist Arcade Hub - Ink Snake</title>
+    <!-- Tailwind CSS for structural grid layouts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts simulating Lyon Display (Lora) and Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-canvas: #FBFBFA;
+            --bg-card: #FFFFFF;
+            --text-primary: #1B1B1D;
+            --text-secondary: #787774;
+            --stroke-notion: #E3E2E0;
+            --stroke-dark: #1B1B1D;
+            
+            /* Notion Highlight Accents (Muted Pastels) */
+            --accent-yellow: #FBF3DB;
+            --accent-blue: #E8F3F7;
+            --accent-pink: #FDF2F2;
+            --accent-green: #EDF3EC;
+            
+            /* Physics Constants */
+            --transition-smooth: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --warp-curve-resting: 24px 24px 24px 24px;
+        }
+
+        /* Dark mode compatibility */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-canvas: #191919;
+                --bg-card: #202020;
+                --text-primary: #E3E3E2;
+                --text-secondary: #9B9B9A;
+                --stroke-notion: #373737;
+                --stroke-dark: #E3E3E2;
+                --accent-yellow: #2F2C22;
+                --accent-blue: #222B2E;
+                --accent-pink: #302424;
+                --accent-green: #222C25;
+            }
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Custom typography styling to match Lyon Display */
+        .serif-header {
+            font-family: 'Lora', serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* Organic Hand-Drawn Pencil Filter Effect for SVGs */
+        .hand-drawn-filter {
+            filter: url(#pencil-texture);
+        }
+
+        .warp-container {
+            perspective: 1200px;
+        }
+
+        .warp-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--stroke-notion);
+            border-radius: var(--warp-curve-resting);
+            transition: 
+                transform 0.1s ease-out, 
+                border-radius 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+                box-shadow 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                border-color 0.4s ease;
+            transform-style: preserve-3d;
+            will-change: transform, border-radius;
+        }
+
+        .warp-card:hover {
+            border-color: var(--stroke-dark);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        .inner-3d-wrapper {
+            transform: translateZ(40px);
+            transition: var(--transition-smooth);
+        }
+
+        /* Custom scrollbar for minimalist panel */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: var(--stroke-notion);
+            border-radius: 10px;
+        }
+
+        /* Procedural wiggle states for rigged items */
+        .wiggle-spring {
+            transform-origin: bottom center;
+            transition: var(--transition-spring);
+        }
+        
+        .score-ping {
+            animation: ping-scale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes ping-scale {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        /* Dotted Game Board overlay (No borders, just reference points) */
+        .grid-dots {
+            background-image: radial-gradient(var(--stroke-notion) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.45;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 md:px-12 flex flex-col items-center justify-start">
+
+    <!-- SVG Filters for Pencil/Hand-drawn aesthetic overlay on SVGs -->
+    <svg class="hidden">
+        <defs>
+            <filter id="pencil-texture" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="w-full max-w-6xl flex flex-col gap-6">
+        
+        <!-- Header Section following strict research guidelines -->
+        <header class="w-full border-b border-dashed pb-6" style="border-color: var(--stroke-notion);">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider mb-3" style="background-color: var(--accent-yellow); color: #8A6D1C;">
+                        <i class="fa-solid fa-gamepad"></i> Notion Interactive Sandbox
+                    </div>
+                    <h1 class="serif-header text-4xl font-semibold leading-tight tracking-tight">The Ink Snake</h1>
+                    <p class="text-sm mt-2 max-w-xl" style="color: var(--text-secondary);">
+                        A study in procedural game feel, featuring gridless pop-up animations, continuous squircle calculations, and interactive rigged background figures tracking coordinates.
+                    </p>
+                </div>
+                <!-- Mini Stats Panel -->
+                <div class="flex items-center gap-3">
+                    <div class="px-4 py-2 border rounded-xl flex flex-col items-center justify-center min-w-[100px]" style="border-color: var(--stroke-notion); background: var(--bg-card);">
+                        <span class="text-[10px] uppercase font-bold tracking-widest" style="color: var(--text-secondary);">Current</span>
+                        <span id="stat-score" class="text-2xl font-bold">00</span>
+                    </div>
+                    <div class="px-4 py-2 border rounded-xl flex flex-col items-center justify-center min-w-[100px]" style="border-color: var(--stroke-notion); background: var(--bg-card);">
+                        <span class="text-[10px] uppercase font-bold tracking-widest" style="color: var(--text-secondary);">Best</span>
+                        <span id="stat-high" class="text-2xl font-bold">00</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+            
+            <!-- LEFT BACKGROUND RIGGED ILLUSTRATION - "The Watcher" -->
+            <div class="hidden lg:flex lg:col-span-2 flex-col items-center justify-center h-full pt-16">
+                <div id="rigged-left-container" class="sticky top-10 flex flex-col items-center text-center gap-3 w-full">
+                    <svg id="rig-watcher" class="w-full max-w-[130px] hand-drawn-filter" viewBox="0 0 150 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Structural Head Group with customized center of rotation -->
+                        <g id="watcher-head" class="transition-transform duration-100 ease-out" style="transform-origin: 75px 90px;">
+                            <!-- Head circle/hair outline -->
+                            <circle cx="75" cy="70" r="28" fill="var(--bg-canvas)" stroke="var(--stroke-dark)" stroke-width="2.5" />
+                            <!-- Face structural line -->
+                            <path d="M75 42 C60 42, 47 54, 47 70 C47 86, 60 98, 75 98 C90 98, 103 86, 103 70" stroke="var(--stroke-dark)" stroke-width="2.5" stroke-linecap="round"/>
+                            <!-- Rigged Eyes (tracking dynamic variable offsets via CSS variables) -->
+                            <g id="watcher-eyes" style="transform: translate(var(--eye-x, 0px), var(--eye-y, 0px)); transition: transform 0.05s ease-out;">
+                                <circle cx="65" cy="70" r="4" fill="var(--stroke-dark)" />
+                                <circle cx="85" cy="70" r="4" fill="var(--stroke-dark)" />
+                            </g>
+                            <!-- Cute tiny mouth that reacts to score triggers -->
+                            <path id="watcher-mouth" d="M71 82 Q75 80 79 82" stroke="var(--stroke-dark)" stroke-width="2" stroke-linecap="round" fill="none" />
+                        </g>
+                        <!-- Body Structure -->
+                        <path d="M40 160 C40 120, 110 120, 110 160 L110 200 L40 200 Z" fill="var(--bg-card)" stroke="var(--stroke-dark)" stroke-width="2.5" />
+                        <!-- Left Rigged Arm reaching out -->
+                        <path id="watcher-arm-l" class="wiggle-spring" d="M40 135 Q20 145 10 130" stroke="var(--stroke-dark)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        <!-- Book held in lap -->
+                        <rect x="55" y="145" width="40" height="25" rx="3" fill="var(--accent-blue)" stroke="var(--stroke-dark)" stroke-width="2" />
+                        <line x1="62" y1="152" x2="88" y2="152" stroke="var(--stroke-dark)" stroke-width="1.5" />
+                        <line x1="62" y1="158" x2="80" y2="158" stroke="var(--stroke-dark)" stroke-width="1.5" />
+                    </svg>
+                    <div class="px-2 py-1 text-[11px] rounded tracking-wide border font-medium" style="background: var(--bg-card); border-color: var(--stroke-notion); color: var(--text-secondary);">
+                        The Scholar <span class="opacity-50">(Reacts to movement)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTRAL GAME PLAY THEATER (Warping 3D Card Widget) -->
+            <div class="col-span-1 lg:col-span-8 warp-container">
+                <div id="game-card" class="warp-card relative p-6 md:p-8 flex flex-col gap-6" data-tilt>
+                    
+                    <!-- Decorative Top Ribbon Interface -->
+                    <div class="inner-3d-wrapper flex items-center justify-between border-b pb-4" style="border-color: var(--stroke-notion);">
+                        <div class="flex items-center gap-3">
+                            <!-- Mimicking classic Notion tag system -->
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <span class="text-xs font-mono ml-2 tracking-tight opacity-75">workspace://ink-snake-sandbox</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="speed-indicator" class="text-[10px] font-mono px-2 py-0.5 rounded uppercase" style="background: var(--accent-green); color: #234C28;">1.0x Speed</span>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Interactive Canvas Container -->
+                    <div class="inner-3d-wrapper relative w-full aspect-[4/3] rounded-2xl overflow-hidden border" style="border-color: var(--stroke-notion); background-color: var(--bg-canvas);">
+                        <!-- Grid Dot Background Matrix overlay -->
+                        <div class="absolute inset-0 grid-dots pointer-events-none"></div>
+                        
+                        <!-- Primary WebGL/2D Accelerated Canvas -->
+                        <canvas id="game-canvas" class="absolute inset-0 w-full h-full block z-10"></canvas>
+
+                        <!-- Splash Screens / Modal States embedded straight in Canvas area -->
+                        <div id="ui-overlay" class="absolute inset-0 z-25 flex flex-col items-center justify-center text-center p-6 bg-opacity-95 backdrop-blur-sm transition-all duration-300" style="background-color: var(--bg-canvas);">
+                            
+                            <!-- Start Game State screen -->
+                            <div id="state-start" class="flex flex-col items-center max-w-sm">
+                                <div class="text-5xl mb-4 text-slate-800 dark:text-slate-200">⬛</div>
+                                <h2 class="serif-header text-2xl font-semibold mb-2">Popping Block Engine</h2>
+                                <p class="text-xs mb-6" style="color: var(--text-secondary);">
+                                    Use your arrow keys, WASD, or swipe anywhere on the gameboard. Watch snake segments spring to life and vanish fluidly.
+                                </p>
+                                <button id="btn-start" class="w-full py-2.5 px-6 rounded-xl font-medium transition-all duration-300 shadow-md border hover:scale-[1.02]" style="background-color: var(--stroke-dark); color: var(--bg-canvas); border-color: var(--stroke-dark);">
+                                    Initialize Gridless Field →
+                                </button>
+                            </div>
+
+                            <!-- Game Over State screen -->
+                            <div id="state-gameover" class="hidden flex flex-col items-center max-w-sm scale-95 transition-all duration-300">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl mb-4" style="background-color: var(--accent-pink); color: #8A2525;">
+                                    <i class="fa-solid fa-skull"></i>
+                                </div>
+                                <h2 class="serif-header text-2xl font-semibold mb-2">Loop Terminated</h2>
+                                <p class="text-xs mb-6" style="color: var(--text-secondary);">
+                                    The matrix folded. Your final score of <span id="final-score" class="font-bold">0</span> has been written to persistent registers.
+                                </p>
+                                <button id="btn-restart" class="w-full py-2.5 px-6 rounded-xl font-medium transition-all duration-300 shadow-md border hover:scale-[1.02]" style="background-color: var(--stroke-dark); color: var(--bg-canvas); border-color: var(--stroke-dark);">
+                                    Run Next Iteration →
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Responsive Interaction Button Layer for Mobile / Touch targets -->
+                    <div class="inner-3d-wrapper grid grid-cols-3 gap-3 md:hidden max-w-[280px] mx-auto w-full mt-2">
+                        <div></div>
+                        <button class="mobile-dir-btn py-3 rounded-xl border flex items-center justify-center bg-white text-dark active:scale-95" data-dir="UP">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                        <div></div>
+                        <button class="mobile-dir-btn py-3 rounded-xl border flex items-center justify-center bg-white text-dark active:scale-95" data-dir="LEFT">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <button class="mobile-dir-btn py-3 rounded-xl border flex items-center justify-center bg-white text-dark active:scale-95" data-dir="DOWN">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button class="mobile-dir-btn py-3 rounded-xl border flex items-center justify-center bg-white text-dark active:scale-95" data-dir="RIGHT">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Footer of Game Card explaining active keys -->
+                    <div class="inner-3d-wrapper flex flex-col md:flex-row items-center justify-between text-[11px] border-t pt-4 mt-2" style="border-color: var(--stroke-notion); color: var(--text-secondary);">
+                        <div class="flex items-center gap-4">
+                            <span><strong class="font-semibold text-neutral-800 dark:text-neutral-200">CONTROLS:</strong> WASD / Arrows</span>
+                            <span><strong class="font-semibold text-neutral-800 dark:text-neutral-200">TOUCH:</strong> Swiping Directions</span>
+                        </div>
+                        <div class="mt-2 md:mt-0 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> Adjust speed dynamically in preferences panel.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT SIDEBAR - Preferences & Aesthetics -->
+            <div class="col-span-1 lg:col-span-2 flex flex-col gap-6">
+                
+                <!-- Quick Preferences Panel -->
+                <div class="border rounded-2xl p-4 flex flex-col gap-4" style="border-color: var(--stroke-notion); background: var(--bg-card);">
+                    <h3 class="font-semibold text-xs uppercase tracking-wider flex items-center gap-2" style="color: var(--text-secondary);">
+                        <i class="fa-solid fa-sliders"></i> Engine Rules
+                    </h3>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-medium opacity-80">Cycle Speed</label>
+                        <select id="select-speed" class="w-full text-xs bg-transparent border rounded-lg p-2 focus:outline-none" style="border-color: var(--stroke-notion);">
+                            <option value="160">Muted (Slow)</option>
+                            <option value="110" selected>Balanced (Standard)</option>
+                            <option value="75">Kinetic (Hyper)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[11px] font-medium opacity-80">Food Morph Geometry</label>
+                        <select id="select-geometry" class="w-full text-xs bg-transparent border rounded-lg p-2 focus:outline-none" style="border-color: var(--stroke-notion);">
+                            <option value="squircle" selected>Rounded Squircle</option>
+                            <option value="star">8-Point Star Vector</option>
+                            <option value="ring">Concentric Rings</option>
+                        </select>
+                    </div>
+
+                    <div class="border-t pt-3 flex flex-col gap-2" style="border-color: var(--stroke-notion);">
+                        <label class="text-[11px] font-medium opacity-80 flex items-center justify-between">
+                            <span>Dynamic Canvas Shadow</span>
+                            <input type="checkbox" id="check-shadows" checked class="accent-slate-800">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- RIGHT BACKGROUND RIGGED ILLUSTRATION - "The Analyst" -->
+                <div id="rigged-right-container" class="flex flex-col items-center text-center gap-3 w-full">
+                    <svg id="rig-analyst" class="w-full max-w-[130px] hand-drawn-filter" viewBox="0 0 150 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Structural Head Group with customized center of rotation -->
+                        <g id="analyst-head" class="transition-transform duration-100 ease-out" style="transform-origin: 75px 90px;">
+                            <!-- Circle face foundation -->
+                            <circle cx="75" cy="70" r="28" fill="var(--bg-canvas)" stroke="var(--stroke-dark)" stroke-width="2.5" />
+                            <path d="M75 42 C60 42, 47 54, 47 70 C47 86, 60 98, 75 98 C90 98, 103 86, 103 70" stroke="var(--stroke-dark)" stroke-width="2.5" stroke-linecap="round"/>
+                            <!-- Rigged Eyes (tracking dynamic variable offsets via CSS variables) -->
+                            <g id="analyst-eyes" style="transform: translate(var(--eye-x, 0px), var(--eye-y, 0px)); transition: transform 0.05s ease-out;">
+                                <circle cx="65" cy="70" r="4" fill="var(--stroke-dark)" />
+                                <circle cx="85" cy="70" r="4" fill="var(--stroke-dark)" />
+                                <!-- Minimal frame glasses -->
+                                <circle cx="65" cy="70" r="8" stroke="var(--stroke-dark)" stroke-width="1.5" fill="none"/>
+                                <circle cx="85" cy="70" r="8" stroke="var(--stroke-dark)" stroke-width="1.5" fill="none"/>
+                                <line x1="73" y1="70" x2="77" y2="70" stroke="var(--stroke-dark)" stroke-width="1.5"/>
+                            </g>
+                            <!-- Tiny dynamic mouth -->
+                            <path id="analyst-mouth" d="M72 84 Q75 83 78 84" stroke="var(--stroke-dark)" stroke-width="2" stroke-linecap="round" fill="none" />
+                        </g>
+                        <!-- Body Structure -->
+                        <path d="M45 155 C45 125, 105 125, 105 155 L105 200 L45 200 Z" fill="var(--bg-card)" stroke="var(--stroke-dark)" stroke-width="2.5" />
+                        <!-- Arm structure pointing up -->
+                        <path id="analyst-arm-r" class="wiggle-spring" d="M105 145 C115 135, 120 115, 125 95" stroke="var(--stroke-dark)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                        <!-- Interactive Pointer Sparkles -->
+                        <path d="M125 85 L125 75 M120 80 L130 80" stroke="var(--stroke-dark)" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <div class="px-2 py-1 text-[11px] rounded tracking-wide border font-medium" style="background: var(--bg-card); border-color: var(--stroke-notion); color: var(--text-secondary);">
+                        The Operator <span class="opacity-50">(Reacts to scoring)</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        /**
+         * 1. 3D INTERACTIVE TILT & ORGANIC CORNER WARP SYSTEM
+         */
+        class SpatialTiltEngine {
+            constructor() {
+                this.card = document.getElementById('game-card');
+                this.maxRotation = 8; // degrees
+                this.init();
+            }
+
+            init() {
+                if (!this.card) return;
+                
+                // Mouse tracking transformations
+                document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                document.addEventListener('mouseleave', () => this.handleMouseLeave());
+            }
+
+            handleMouseMove(event) {
+                const rect = this.card.getBoundingClientRect();
+                
+                // Track relative position inside screen space
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+                    return; // Outside element bounds
+                }
+
+                // Normalize inputs to ranges between -0.5 and 0.5
+                const normX = (x / rect.width) - 0.5;
+                const normY = (y / rect.height) - 0.5;
+
+                // Rotational vector calculations
+                const rotX = (normY * this.maxRotation * -1).toFixed(2);
+                const rotY = (normX * this.maxRotation).toFixed(2);
+
+                // Apply style states directly to the card
+                this.card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.01, 1.01, 1.01)`;
+                
+                // Dynamically bend card border-radius values based on hover position (Organic Warp)
+                const baseMin = 18;
+                const baseMax = 36;
+                const bTL = Math.floor(baseMin + (normX + normY) * 10);
+                const bTR = Math.floor(baseMax - (normX - normY) * 10);
+                const bBR = Math.floor(baseMin - (normX + normY) * 10);
+                const bBL = Math.floor(baseMax + (normX - normY) * 10);
+
+                this.card.style.borderRadius = `${bTL}px ${bTR}px ${bBR}px ${bBL}px`;
+            }
+
+            handleMouseLeave() {
+                // Restore beautiful resting values
+                this.card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+                this.card.style.borderRadius = "var(--warp-curve-resting)";
+            }
+        }
+
+        // Initialize Spatial Engine on load
+        const tiltEngine = new SpatialTiltEngine();
+    </script>
+
+    <script>
+        /**
+         * 2. THE POP-IN/POP-OUT INTUITIVE GRIDLESS SNAKE ENGINE
+         */
+        class InkSnakeGame {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Core layout references
+                this.uiOverlay = document.getElementById('ui-overlay');
+                this.stateStart = document.getElementById('state-start');
+                this.stateGameOver = document.getElementById('state-gameover');
+                this.scoreDisplay = document.getElementById('stat-score');
+                this.highScoreDisplay = document.getElementById('stat-high');
+                this.finalScore = document.getElementById('final-score');
+                
+                // Preference controls
+                this.selectSpeed = document.getElementById('select-speed');
+                this.selectGeometry = document.getElementById('select-geometry');
+                this.checkShadows = document.getElementById('check-shadows');
+                
+                // Game Grid configuration
+                this.gridCountX = 20;
+                this.gridCountY = 15;
+                
+                // Interactive state
+                this.snake = [];         // Array of segment objects: {x, y, scale, state, opacity}
+                this.dyingSegments = []; // Pool for segments in "pop out" transition
+                this.food = { x: 0, y: 0, scale: 0, pulse: 0 };
+                this.direction = 'RIGHT';
+                this.nextDirection = 'RIGHT';
+                
+                // Loop parameters
+                this.gameLoopId = null;
+                this.renderLoopId = null;
+                this.lastUpdateTime = 0;
+                this.updateInterval = parseInt(this.selectSpeed.value); // Milliseconds per grid update step
+                
+                // Scores
+                this.score = 0;
+                this.highScore = parseInt(localStorage.getItem('notion-snake-high')) || 0;
+                this.highScoreDisplay.textContent = this.padZero(this.highScore);
+                
+                // Special Effects
+                this.particles = [];
+                
+                // Event bindings
+                this.initEvents();
+                this.resizeCanvas();
+                this.startRendering();
+            }
+
+            initEvents() {
+                // Resize sync
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                // Controls setup
+                document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+                document.getElementById('btn-restart').addEventListener('click', () => this.startGame());
+
+                // Keyboard handler
+                document.addEventListener('keydown', (e) => this.handleKeys(e));
+
+                // Speed adjustments
+                this.selectSpeed.addEventListener('change', () => {
+                    this.updateInterval = parseInt(this.selectSpeed.value);
+                    const label = document.getElementById('speed-indicator');
+                    if (this.updateInterval === 160) label.textContent = '0.7x Speed';
+                    if (this.updateInterval === 110) label.textContent = '1.0x Speed';
+                    if (this.updateInterval === 75) label.textContent = '1.5x Speed';
+                });
+
+                // Mobile Touch Swiping logic
+                let touchStartX = 0;
+                let touchStartY = 0;
+                this.canvas.addEventListener('touchstart', (e) => {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    e.preventDefault();
+                }, { passive: false });
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    if (!touchStartX || !touchStartY) return;
+                    
+                    const diffX = e.touches[0].clientX - touchStartX;
+                    const diffY = e.touches[0].clientY - touchStartY;
+                    const threshold = 30; // Min pixels to swipe
+
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > threshold) {
+                            if (diffX > 0 && this.direction !== 'LEFT') this.nextDirection = 'RIGHT';
+                            else if (diffX < 0 && this.direction !== 'RIGHT') this.nextDirection = 'LEFT';
+                            touchStartX = 0;
+                            touchStartY = 0;
+                        }
+                    } else {
+                        if (Math.abs(diffY) > threshold) {
+                            if (diffY > 0 && this.direction !== 'UP') this.nextDirection = 'DOWN';
+                            else if (diffY < 0 && this.direction !== 'DOWN') this.nextDirection = 'UP';
+                            touchStartX = 0;
+                            touchStartY = 0;
+                        }
+                    }
+                    e.preventDefault();
+                }, { passive: false });
+
+                // UI Screen Tap directions
+                document.querySelectorAll('.mobile-dir-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const dir = btn.getAttribute('data-dir');
+                        if (dir === 'UP' && this.direction !== 'DOWN') this.nextDirection = 'UP';
+                        if (dir === 'DOWN' && this.direction !== 'UP') this.nextDirection = 'DOWN';
+                        if (dir === 'LEFT' && this.direction !== 'RIGHT') this.nextDirection = 'LEFT';
+                        if (dir === 'RIGHT' && this.direction !== 'LEFT') this.nextDirection = 'RIGHT';
+                    });
+                });
+            }
+
+            handleKeys(e) {
+                const key = e.key;
+                if ((key === 'ArrowUp' || key === 'w' || key === 'W') && this.direction !== 'DOWN') this.nextDirection = 'UP';
+                else if ((key === 'ArrowDown' || key === 's' || key === 'S') && this.direction !== 'UP') this.nextDirection = 'DOWN';
+                else if ((key === 'ArrowLeft' || key === 'a' || key === 'A') && this.direction !== 'RIGHT') this.nextDirection = 'LEFT';
+                else if ((key === 'ArrowRight' || key === 'd' || key === 'D') && this.direction !== 'LEFT') this.nextDirection = 'RIGHT';
+            }
+
+            resizeCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = this.canvas.parentNode.getBoundingClientRect();
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.ctx.scale(dpr, dpr);
+            }
+
+            startGame() {
+                // Clean reset
+                this.score = 0;
+                this.scoreDisplay.textContent = "00";
+                this.scoreDisplay.classList.remove('score-ping');
+                this.direction = 'RIGHT';
+                this.nextDirection = 'RIGHT';
+                this.dyingSegments = [];
+                this.particles = [];
+                
+                // Initialize snake in the center
+                const startX = Math.floor(this.gridCountX / 2);
+                const startY = Math.floor(this.gridCountY / 2);
+                
+                // Segments are instantiated with a starting scale of 0 to allow the pop-in intro wave
+                this.snake = [
+                    { x: startX, y: startY, scale: 0, maxScale: 1, targetScale: 1 },
+                    { x: startX - 1, y: startY, scale: 0, maxScale: 1, targetScale: 1 },
+                    { x: startX - 2, y: startY, scale: 0, maxScale: 1, targetScale: 1 }
+                ];
+
+                this.spawnFood();
+                this.uiOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    this.uiOverlay.classList.add('hidden');
+                }, 300);
+
+                // Run the logical update controller
+                this.lastUpdateTime = performance.now();
+                this.running = true;
+                if (this.gameLoopId) cancelAnimationFrame(this.gameLoopId);
+                this.updateCycle(performance.now());
+                
+                // Trigger watch state animation on left illustration
+                this.triggerWatcherExpression('surprised');
+            }
+
+            spawnFood() {
+                let valid = false;
+                let potentialX, potentialY;
+                
+                while (!valid) {
+                    potentialX = Math.floor(Math.random() * this.gridCountX);
+                    potentialY = Math.floor(Math.random() * this.gridCountY);
+                    
+                    // Verify point is not inside snake body
+                    valid = true;
+                    for (let seg of this.snake) {
+                        if (seg.x === potentialX && seg.y === potentialY) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+
+                this.food = {
+                    x: potentialX,
+                    y: potentialY,
+                    scale: 0, // Starts at 0, dynamically spring scales up in rendering loop
+                    targetScale: 1,
+                    pulse: 0
+                };
+            }
+
+            updateCycle(timestamp) {
+                if (!this.running) return;
+
+                const elapsed = timestamp - this.lastUpdateTime;
+                if (elapsed >= this.updateInterval) {
+                    this.stepPhysics();
+                    this.lastUpdateTime = timestamp;
+                }
+
+                this.gameLoopId = requestAnimationFrame((t) => this.updateCycle(t));
+            }
+
+            stepPhysics() {
+                this.direction = this.nextDirection;
+
+                // Derive next head target
+                let nextX = this.snake[0].x;
+                let nextY = this.snake[0].y;
+
+                if (this.direction === 'UP') nextY--;
+                else if (this.direction === 'DOWN') nextY++;
+                else if (this.direction === 'LEFT') nextX--;
+                else if (this.direction === 'RIGHT') nextX++;
+
+                // Collision bounds check
+                if (nextX < 0 || nextX >= this.gridCountX || nextY < 0 || nextY >= this.gridCountY) {
+                    this.endGame();
+                    return;
+                }
+
+                // Collision self-eating check
+                for (let i = 0; i < this.snake.length; i++) {
+                    if (this.snake[i].x === nextX && this.snake[i].y === nextY) {
+                        this.endGame();
+                        return;
+                    }
+                }
+
+                // Instantiate new head with POP-IN physics (starts at scale 0, targets scale 1)
+                const newHead = {
+                    x: nextX,
+                    y: nextY,
+                    scale: 0,
+                    maxScale: 1.1, // Overshoots scale slightly for high game-feel springiness
+                    targetScale: 1
+                };
+                
+                this.snake.unshift(newHead);
+
+                // Check food consumption
+                if (nextX === this.food.x && nextY === this.food.y) {
+                    this.score += 10;
+                    this.scoreDisplay.textContent = this.padZero(this.score);
+                    this.scoreDisplay.classList.remove('score-ping');
+                    void this.scoreDisplay.offsetWidth; // Trigger reflow for animation restart
+                    this.scoreDisplay.classList.add('score-ping');
+
+                    // Produce explosion particles at food coordinate
+                    this.createExplosion(this.food.x, this.food.y);
+                    
+                    // Trigger character micro-interactions
+                    this.triggerScoreWiggles();
+
+                    // Re-spawn target food
+                    this.spawnFood();
+                } else {
+                    // Standard segment pop-out
+                    const oldTail = this.snake.pop();
+                    // Transition to dying pool instead of disappearing instantly (POP-OUT physics)
+                    oldTail.targetScale = 0;
+                    this.dyingSegments.push(oldTail);
+                }
+
+                // Rigged heads dynamically track snake coordinate vectors
+                this.updateProceduralIllustrations();
+            }
+
+            createExplosion(gridX, gridY) {
+                const canvasW = this.canvas.width / (window.devicePixelRatio || 1);
+                const canvasH = this.canvas.height / (window.devicePixelRatio || 1);
+                const cellW = canvasW / this.gridCountX;
+                const cellH = canvasH / this.gridCountY;
+                const centerX = (gridX * cellW) + (cellW / 2);
+                const centerY = (gridY * cellH) + (cellH / 2);
+
+                for (let i = 0; i < 8; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 1.5 + Math.random() * 2.5;
+                    this.particles.push({
+                        x: centerX,
+                        y: centerY,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: 3 + Math.random() * 4,
+                        opacity: 1,
+                        color: Math.random() > 0.5 ? 'var(--text-primary)' : 'var(--text-secondary)'
+                    });
+                }
+            }
+
+            triggerScoreWiggles() {
+                // Rigged left and right SVG elements wiggle with CSS custom transforms
+                const rigWatcher = document.getElementById('rig-watcher');
+                const rigAnalyst = document.getElementById('rig-analyst');
+                
+                rigWatcher.style.transform = 'scale(1.15) rotate(-4deg)';
+                rigAnalyst.style.transform = 'scale(1.15) rotate(4deg)';
+
+                // Open character mouths in excitement
+                document.getElementById('watcher-mouth').setAttribute('d', 'M70 82 Q75 87 80 82');
+                document.getElementById('analyst-mouth').setAttribute('d', 'M70 84 Q75 89 80 84');
+
+                setTimeout(() => {
+                    rigWatcher.style.transform = 'none';
+                    rigAnalyst.style.transform = 'none';
+                    // Restore calm expressions
+                    document.getElementById('watcher-mouth').setAttribute('d', 'M71 82 Q75 80 79 82');
+                    document.getElementById('analyst-mouth').setAttribute('d', 'M72 84 Q75 83 78 84');
+                }, 400);
+            }
+
+            triggerWatcherExpression(state) {
+                const mouth = document.getElementById('watcher-mouth');
+                if (state === 'surprised') {
+                    mouth.setAttribute('d', 'M72 85 Q75 80 78 85');
+                } else if (state === 'sad') {
+                    mouth.setAttribute('d', 'M71 85 Q75 80 79 85');
+                }
+            }
+
+            endGame() {
+                this.running = false;
+                if (this.gameLoopId) cancelAnimationFrame(this.gameLoopId);
+                
+                // Sync high scores
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    this.highScoreDisplay.textContent = this.padZero(this.highScore);
+                    localStorage.setItem('notion-snake-high', this.highScore);
+                }
+
+                // Show game over structural layout
+                this.finalScore.textContent = this.score;
+                this.stateStart.classList.add('hidden');
+                this.stateGameOver.classList.remove('hidden');
+                this.uiOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    this.uiOverlay.style.opacity = '1';
+                }, 10);
+
+                this.triggerWatcherExpression('sad');
+            }
+
+            updateProceduralIllustrations() {
+                if (this.snake.length === 0) return;
+                
+                const head = this.snake[0];
+                
+                // Find normalized target position of head relative to grid scope
+                const normX = (head.x / this.gridCountX) - 0.5; // range -0.5 to 0.5
+                const normY = (head.y / this.gridCountY) - 0.5;
+
+                // Translate normalization to subtle eye displacement pixels (-3 to 3 px)
+                const eyeX = (normX * 6).toFixed(1);
+                const eyeY = (normY * 4).toFixed(1);
+
+                // Dispatch CSS styles to left watcher & right analyst heads
+                const watcherHead = document.getElementById('watcher-head');
+                const analystHead = document.getElementById('analyst-head');
+                
+                if (watcherHead) {
+                    watcherHead.style.transform = `rotate(${(normX * 12).toFixed(1)}deg) translate(${(normX * 4).toFixed(1)}px, ${(normY * 2).toFixed(1)}px)`;
+                    document.getElementById('watcher-eyes').style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+                }
+                if (analystHead) {
+                    analystHead.style.transform = `rotate(${(normX * -12).toFixed(1)}deg) translate(${(normX * -4).toFixed(1)}px, ${(normY * 2).toFixed(1)}px)`;
+                    document.getElementById('analyst-eyes').style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+                }
+            }
+
+            startRendering() {
+                const render = () => {
+                    this.drawScene();
+                    this.renderLoopId = requestAnimationFrame(render);
+                };
+                this.renderLoopId = requestAnimationFrame(render);
+            }
+
+            drawScene() {
+                const canvasW = this.canvas.width / (window.devicePixelRatio || 1);
+                const canvasH = this.canvas.height / (window.devicePixelRatio || 1);
+                
+                // Clear background cleanly to transparent/canvas base color
+                this.ctx.clearRect(0, 0, canvasW, canvasH);
+
+                // Grid scale parameters
+                const cellW = canvasW / this.gridCountX;
+                const cellH = canvasH / this.gridCountY;
+
+                // Retrieve visual styling rules
+                const shadowEnabled = this.checkShadows.checked;
+
+                // 1. RENDER DYING SEGMENTS (Pop-out fade & shrink animation)
+                for (let i = this.dyingSegments.length - 1; i >= 0; i--) {
+                    const seg = this.dyingSegments[i];
+                    
+                    // Mathematical linear interpolation step for physical curves
+                    seg.scale += (seg.targetScale - seg.scale) * 0.22; // Springiness constant
+                    
+                    if (seg.scale < 0.05) {
+                        this.dyingSegments.splice(i, 1);
+                        continue;
+                    }
+
+                    this.drawSegment(seg.x, seg.y, seg.scale, cellW, cellH, shadowEnabled, true);
+                }
+
+                // 2. RENDER ACTIVE SNAKE BODY (Smooth pop-in squircle shapes)
+                for (let i = 0; i < this.snake.length; i++) {
+                    const seg = this.snake[i];
+                    
+                    // Spring transition to current target scales
+                    seg.scale += (seg.targetScale - seg.scale) * 0.28;
+                    
+                    // Color properties: Head is stark black/charcoal, body segments get subtle styling
+                    const isHead = (i === 0);
+                    this.drawSegment(seg.x, seg.y, seg.scale, cellW, cellH, shadowEnabled, false, isHead);
+                }
+
+                // 3. RENDER THE FOOD WITH REVOLVING TRANSFORMS
+                if (this.food && this.food.targetScale > 0) {
+                    this.food.scale += (this.food.targetScale - this.food.scale) * 0.15;
+                    this.food.pulse += 0.04;
+                    const visualScale = this.food.scale * (1 + Math.sin(this.food.pulse) * 0.08);
+
+                    this.drawFood(this.food.x, this.food.y, visualScale, cellW, cellH);
+                }
+
+                // 4. RENDER PROCEDURAL INTERACTIVE INK PARTICLES
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.opacity -= 0.025; // fade rate
+                    
+                    if (p.opacity <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+
+                    this.ctx.save();
+                    this.ctx.globalAlpha = p.opacity;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+            }
+
+            drawSegment(gridX, gridY, scaleFactor, cellW, cellH, shadowEnabled, isDying = false, isHead = false) {
+                const sizeW = cellW * scaleFactor;
+                const sizeH = cellH * scaleFactor;
+                const posX = (gridX * cellW) + (cellW - sizeW) / 2;
+                const posY = (gridY * cellH) + (cellH - sizeH) / 2;
+
+                this.ctx.save();
+                
+                // Configure styling properties based on Notion palette
+                if (isHead) {
+                    this.ctx.fillStyle = 'var(--text-primary)';
+                } else {
+                    this.ctx.fillStyle = isDying ? 'var(--stroke-notion)' : 'var(--text-primary)';
+                    // Slight opacity reduction on body for visual depth
+                    this.ctx.globalAlpha = isDying ? 0.35 : 0.85;
+                }
+
+                // Apply dynamic hardware-accelerated shadows
+                if (shadowEnabled && !isDying) {
+                    this.ctx.shadowColor = 'rgba(27, 27, 29, 0.15)';
+                    this.ctx.shadowBlur = 8;
+                    this.ctx.shadowOffsetY = 4;
+                }
+
+                // Draw a beautiful modern Squircle using rounded rectangles
+                const radius = Math.min(sizeW, sizeH) * 0.35; // corner curves
+                this.ctx.beginPath();
+                this.ctx.roundRect(posX, posY, sizeW, sizeH, radius);
+                this.ctx.fill();
+
+                this.ctx.restore();
+            }
+
+            drawFood(gridX, gridY, scaleFactor, cellW, cellH) {
+                const geom = this.selectGeometry.value;
+                const sizeW = cellW * scaleFactor;
+                const sizeH = cellH * scaleFactor;
+                const posX = (gridX * cellW) + (cellW - sizeW) / 2;
+                const posY = (gridY * cellH) + (cellH - sizeH) / 2;
+                const cX = posX + (sizeW / 2);
+                const cY = posY + (sizeH / 2);
+
+                this.ctx.save();
+                this.ctx.strokeStyle = 'var(--text-primary)';
+                this.ctx.lineWidth = 2.5;
+
+                if (geom === 'squircle') {
+                    // Muted green accent background
+                    this.ctx.fillStyle = 'var(--accent-yellow)';
+                    const radius = Math.min(sizeW, sizeH) * 0.45;
+                    this.ctx.beginPath();
+                    this.ctx.roundRect(posX + 2, posY + 2, sizeW - 4, sizeH - 4, radius);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+
+                    // Tiny target center dot
+                    this.ctx.fillStyle = 'var(--text-primary)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cX, cY, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                } else if (geom === 'star') {
+                    // Render minimalist 8-point geometric vector star
+                    const points = 8;
+                    const rOuter = sizeW / 2;
+                    const rInner = sizeW / 4;
+                    this.ctx.fillStyle = 'var(--accent-pink)';
+                    this.ctx.beginPath();
+                    
+                    let rot = (Math.PI / 2) * 3;
+                    let x = cX;
+                    let y = cY;
+                    let step = Math.PI / points;
+
+                    this.ctx.moveTo(cX, cY - rOuter);
+                    for (let i = 0; i < points; i++) {
+                        x = cX + Math.cos(rot) * rOuter;
+                        y = cY + Math.sin(rot) * rOuter;
+                        this.ctx.lineTo(x, y);
+                        rot += step;
+
+                        x = cX + Math.cos(rot) * rInner;
+                        y = cY + Math.sin(rot) * rInner;
+                        this.ctx.lineTo(x, y);
+                        rot += step;
+                    }
+                    this.ctx.lineTo(cX, cY - rOuter);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    this.ctx.stroke();
+
+                } else if (geom === 'ring') {
+                    // Concentric rings tracking target shapes
+                    this.ctx.fillStyle = 'var(--bg-canvas)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(cX, cY, sizeW / 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(cX, cY, sizeW / 4, 0, Math.PI * 2);
+                    this.ctx.fillStyle = 'var(--text-primary)';
+                    this.ctx.fill();
+                }
+
+                this.ctx.restore();
+            }
+
+            padZero(num) {
+                return num < 10 ? `0${num}` : num;
+            }
+        }
+
+        // Initialize Snake engine instantly on load execution
+        document.addEventListener('DOMContentLoaded', () => {
+            window.gameEngine = new InkSnakeGame();
+        });
+    </script>
+</body>
+</html>
