@@ -1,0 +1,926 @@
+align-items: center;
+            gap: 12px;
+        }
+
+        .db-header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .achievements-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            font-size: 13px;
+            box-shadow: var(--notion-shadow);
+        }
+
+        .achievements-table th {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+            background-color: var(--bg-secondary);
+        }
+
+        .achievements-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .achievements-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .achievements-table tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .status-unlocked {
+            color: var(--brand-green);
+            background-color: var(--brand-green-glow);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-locked {
+            color: var(--text-muted);
+            background-color: rgba(55, 53, 47, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+       SIDEBAR NAVIGATION
+       ========================================================================== -->
+    <aside>
+        <div class="sidebar-header">
+            <div class="sidebar-logo">T</div>
+            <div class="sidebar-title">TaxQuest Engine</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active">
+                <span class="sidebar-item-icon">⚡</span>
+                <span>Workspace Dashboard</span>
+            </li>
+            <li class="sidebar-item">
+                <span class="sidebar-item-icon">📚</span>
+                <span>Teenager Tax Hub</span>
+            </li>
+            <li class="sidebar-item">
+                <span class="sidebar-item-icon">📁</span>
+                <span>Audit Worksheets</span>
+            </li>
+            <li class="sidebar-item">
+                <span class="sidebar-item-icon">⚙️</span>
+                <span>Settings</span>
+            </li>
+        </ul>
+        <div style="padding: 16px; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+            Light Sandbox v2.0.0
+        </div>
+    </aside>
+
+    <!-- ==========================================================================
+       MAIN WORKSPACE AREA
+       ========================================================================== -->
+    <main>
+        <canvas id="particle-canvas"></canvas>
+
+        <div class="notion-cover">
+            <div class="notion-cover-overlay"></div>
+        </div>
+
+        <div class="notion-container">
+            <div class="notion-emoji-badge">🌱</div>
+
+            <div class="notion-title-section">
+                <h1 class="notion-title">Gen-Z Side-Hustle Tax Sandbox</h1>
+                <p class="notion-meta">
+                    Interactive sandbox for teenagers and young freelancers (Ages 17-23). Master the mechanics of 1099 contracts, business deductions, and Audit Red Flags in a risk-free workspace.
+                </p>
+            </div>
+
+            <!-- Global Status Bar -->
+            <div class="gamification-bar">
+                <div class="player-profile">
+                    <div class="avatar" id="player-avatar">🎒</div>
+                    <div class="player-info-text">
+                        <div class="player-name">Hustler Accountant</div>
+                        <div class="player-rank" id="level-display">Level 1 Junior Hustler</div>
+                    </div>
+                </div>
+
+                <div class="xp-display-wrapper">
+                    <div class="xp-header">
+                        <span>XP Progress</span>
+                        <span id="xp-numbers">0 / 100 XP</span>
+                    </div>
+                    <div class="xp-bar-outer">
+                        <div class="xp-bar-inner" id="xp-progress-bar"></div>
+                    </div>
+                </div>
+
+                <div class="stats-counter-group">
+                    <div class="counter-pill">
+                        <span>🪙</span>
+                        <span id="gold-display">0</span>
+                    </div>
+                    <div class="counter-pill">
+                        <span>🔥</span>
+                        <span id="streak-display">0 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================================================
+               3D CARDS GRID SYSTEM (Slipless Drag Physics)
+               ========================================================================== -->
+            <div class="cards-grid">
+
+                <!-- CARD 1: Bracket Climber -->
+                <div class="card-perspective-container">
+                    <div class="warp-card" data-theme="purple" id="card-bracket">
+                        <div class="flash-overlay"></div>
+                        <div class="card-header">
+                            <span class="card-badge badge-purple">Income Ladder</span>
+                            <span class="card-points">+25 XP</span>
+                        </div>
+                        <h3 class="card-title">Marginal Tax Bracket</h3>
+                        <p class="card-description">
+                            Slide to adjust your gig earnings. Discover how your marginal brackets stack as you grow from pocket money to real side-hustle revenue.
+                        </p>
+                        
+                        <div class="card-game-interface">
+                            <div class="slider-container-custom">
+                                <div class="metric-label-group">
+                                    <span>Simulated Side-Hustle Income</span>
+                                    <span id="bracket-income-lbl" style="color: var(--brand-purple); font-weight: 600;">$0k</span>
+                                </div>
+                                
+                                <!-- Custom Non-Slip Slider Component -->
+                                <div class="slider-track-custom" id="income-slider-track">
+                                    <div class="slider-fill-custom" id="income-slider-fill"></div>
+                                    <div class="slider-thumb-custom" id="income-slider-thumb"></div>
+                                </div>
+                                
+                                <div class="bracket-vis" id="bracket-vis-container">
+                                    <div class="bracket-bar" style="height: 10%;" title="10% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 12%;" title="12% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 22%;" title="22% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 24%;" title="24% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 32%;" title="32% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 35%;" title="35% Bracket"></div>
+                                    <div class="bracket-bar" style="height: 37%;" title="37% Bracket"></div>
+                                </div>
+
+                                <div class="metric-label-group">
+                                    <span>Effective Tax Liability:</span>
+                                    <span id="effective-rate-lbl" style="font-weight: 600; color: var(--text-primary);">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: Write-Off Arena -->
+                <div class="card-perspective-container">
+                    <div class="warp-card" data-theme="blue" id="card-sorter">
+                        <div class="flash-overlay"></div>
+                        <div class="card-header">
+                            <span class="card-badge badge-blue">Expense Matcher</span>
+                            <span class="card-points">+30 XP</span>
+                        </div>
+                        <h3 class="card-title">Write-Off Arena</h3>
+                        <p class="card-description">
+                            Classify personal expenses versus valid business write-offs for teen streamers, coders, crafters, and gig workers.
+                        </p>
+                        
+                        <div class="card-game-interface">
+                            <div class="sorter-deck">
+                                <div class="sorter-card" id="sorter-active-item">
+                                    <div class="sorter-item-niche" id="sorter-item-niche">Twitch Streamer</div>
+                                    <div class="sorter-item-name" id="sorter-item-title">Ring Light Setup</div>
+                                    <div class="sorter-item-amount" id="sorter-item-cost">$45.00</div>
+                                </div>
+                            </div>
+                            <div class="sorter-actions">
+                                <button class="btn-game" id="btn-reject-expense">Personal Use</button>
+                                <button class="btn-game" id="btn-approve-expense" style="background-color: var(--brand-blue-glow); border-color: rgba(11, 111, 164, 0.2); color: var(--brand-blue);">Write-off (1099)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: Capital Gains Matrix Flipper -->
+                <div class="card-perspective-container">
+                    <div class="warp-card" data-theme="green" id="card-gains">
+                        <div class="flash-overlay"></div>
+                        <div class="card-header">
+                            <span class="card-badge badge-green">Asset Portal</span>
+                            <span class="card-points">+40 XP</span>
+                        </div>
+                        <h3 class="card-title">Capital Gains Horizon</h3>
+                        <p class="card-description">
+                            Held crypto, sneakers, or stocks? Shift the time-horizon slider to see how crossing the one-year mark triggers lower tax rates.
+                        </p>
+                        
+                        <div class="card-game-interface">
+                            <div class="strategy-flipper" id="strategy-portal">
+                                <div class="flipper-inner" id="flipper-inner-body">
+                                    <div class="flipper-side flipper-front">
+                                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--brand-red); font-weight: bold;">SHORT-TERM COHORT</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Rate: Up to 37%</div>
+                                        <div class="gain-timer-bar">
+                                            <div class="gain-timer-fill" id="gains-bar-fill"></div>
+                                        </div>
+                                        <div style="font-size: 11px; color: var(--text-secondary);" id="gains-days-lbl">Day 120 of hold</div>
+                                    </div>
+                                    <div class="flipper-side flipper-back">
+                                        <div style="font-size: 10px; font-family: var(--font-mono); color: var(--brand-green); font-weight: bold;">LONG-TERM SECURED</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Rate: Up to 20%</div>
+                                        <div style="height: 5px; background: rgba(15, 123, 66, 0.15); border-radius: 3px;"></div>
+                                        <div style="font-size: 11px; color: var(--text-secondary);">Day 366+ Qualifying Investment</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Non-Slip Gains Slider Track -->
+                            <div class="slider-container-custom" style="margin-top: 14px;">
+                                <div class="slider-track-custom" id="gains-slider-track">
+                                    <div class="slider-fill-custom" id="gains-slider-fill" style="background: var(--brand-green);"></div>
+                                    <div class="slider-thumb-custom" id="gains-slider-thumb" style="border-color: var(--brand-green);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: Real-World Audit Mechanism Simulator -->
+                <div class="card-perspective-container">
+                    <div class="warp-card" data-theme="amber" id="card-audit">
+                        <div class="flash-overlay"></div>
+                        <div class="card-header">
+                            <span class="card-badge badge-amber">Compliance Simulator</span>
+                            <span class="card-points">+50 XP</span>
+                        </div>
+                        <h3 class="card-title">Schedule C Red-Flags</h3>
+                        <p class="card-description">
+                            Configure your Schedule C return decisions. Maximize savings, but beware of rounded figures, excessive deductions, and hidden revenue that raise your DIF (Audit Risk) Score.
+                        </p>
+                        
+                        <div class="card-game-interface">
+                            <div class="audit-board">
+                                <div class="audit-choices">
+                                    <div class="audit-option-row" id="audit-opt-use">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Deduct setup as 100% business</span>
+                                    </div>
+                                    <div class="audit-option-row" id="audit-opt-round">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Round expenses to even zeros</span>
+                                    </div>
+                                    <div class="audit-option-row" id="audit-opt-cash">
+                                        <div class="audit-checkbox"></div>
+                                        <span>Omit cash-app tips revenue</span>
+                                    </div>
+                                </div>
+                                <div class="audit-gauge-container">
+                                    <div class="radial-meter">
+                                        <svg class="radial-svg">
+                                            <circle class="radial-bg" cx="40" cy="40" r="32"></circle>
+                                            <circle class="radial-fill" id="audit-svg-circle" cx="40" cy="40" r="32"></circle>
+                                        </svg>
+                                        <div class="radial-value" id="audit-risk-value">15%</div>
+                                    </div>
+                                    <button class="btn-game" id="btn-submit-return" style="width: 100%; padding: 6px; font-size: 11px;">
+                                        File Schedule C
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="audit-metrics-row">
+                                <span>Simulated Return: <strong id="audit-return-amt" style="color: var(--brand-green);">$0</strong></span>
+                                <span>DIF Level: <strong id="audit-status-word" style="color: var(--brand-green);">SAFE</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ==========================================================================
+               NOTION DATABASE VIEW
+               ========================================================================== -->
+            <div class="notion-header-divider">
+                <span style="font-size: 18px;">🏆</span>
+                <span class="db-header-title">Hustler Database Status</span>
+            </div>
+
+            <table class="achievements-table">
+                <thead>
+                    <tr>
+                        <th>Goal Achievement</th>
+                        <th>Tax Domain</th>
+                        <th>Goal Requirement</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="achievements-table-body">
+                    <tr id="ach-bracket">
+                        <td style="font-weight: 600; color: var(--text-primary);">💼 Real Earner</td>
+                        <td>Income Brackets</td>
+                        <td>Explore brackets above $150,000 as a sole proprietor.</td>
+                        <td><span class="status-locked" id="ach-lbl-bracket">LOCKED</span></td>
+                    </tr>
+                    <tr id="ach-sort">
+                        <td style="font-weight: 600; color: var(--text-primary);">📝 Audit Shield</td>
+                        <td>Business Deductions</td>
+                        <td>Reach 4 correct expense write-offs in a row.</td>
+                        <td><span class="status-locked" id="ach-lbl-sort">LOCKED</span></td>
+                    </tr>
+                    <tr id="ach-gains">
+                        <td style="font-weight: 600; color: var(--text-primary);">🔑 Smart Holder</td>
+                        <td>Capital Assets</td>
+                        <td>Shift duration past the 365-day boundary.</td>
+                        <td><span class="status-locked" id="ach-lbl-gains">LOCKED</span></td>
+                    </tr>
+                    <tr id="ach-audit">
+                        <td style="font-weight: 600; color: var(--text-primary);">🛡️ Compliance Master</td>
+                        <td>Audit Risks</td>
+                        <td>File return with refund over $600 and DIF risk under 35%.</td>
+                        <td><span class="status-locked" id="ach-lbl-audit">LOCKED</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+       CELEBRATION MODAL
+       ========================================================================== -->
+    <div class="modal-overlay" id="level-modal">
+        <div class="level-up-card">
+            <div class="level-badge-large" id="modal-level-badge">2</div>
+            <h2 class="modal-title">Level Up Achieved!</h2>
+            <p class="modal-desc" id="modal-level-description">
+                You've successfully optimized your side-hustle accounts without raising any flags! Keep climbing the ladder.
+            </p>
+            <button class="btn-game" id="btn-close-modal" style="width: 100%; max-width: 180px; padding: 10px; margin: 0 auto; display: block; background: var(--brand-purple); border: none; color: white;">
+                Continue Game
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+       10. RUNTIME CONTROLLER AND GAME ENGINES
+       ========================================================================== -->
+    <script>
+        /* ==========================================================================
+           10.1 GLOBAL ENGINE STATE
+           ========================================================================== */
+        const state = {
+            xp: 0,
+            level: 1,
+            gold: 0,
+            streak: 0,
+            correctSortsInARow: 0,
+            hasBracketUnlocked: false,
+            hasSortUnlocked: false,
+            hasGainsUnlocked: false,
+            hasAuditUnlocked: false
+        };
+
+        const LEVEL_THRESHOLD = 100;
+
+        // Custom Canvas Particle Engine
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+--- script start ---
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 3;
+                this.speedX = (Math.random() - 0.5) * 6;
+                this.speedY = (Math.random() - 1) * 6 - 3;
+                this.color = color;
+                this.alpha = 1;
+                this.gravity = 0.15;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += this.gravity;
+                this.alpha -= 0.025;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.alpha > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        /* ==========================================================================
+           10.2 SLIP-RESISTANT CUSTOM SLIDERS (Pointer Capture API)
+           ========================================================================== */
+        function initSlipFreeSlider(trackId, thumbId, fillId, onUpdate) {
+            const track = document.getElementById(trackId);
+            const thumb = document.getElementById(thumbId);
+            const fill = document.getElementById(fillId);
+            let activeDrag = false;
+
+            function calculateAndSetPercentage(clientX) {
+                const rect = track.getBoundingClientRect();
+                let ratio = (clientX - rect.left) / rect.width;
+                ratio = Math.max(0, Math.min(1, ratio));
+                
+                thumb.style.left = `${ratio * 100}%`;
+                if (fill) fill.style.width = `${ratio * 100}%`;
+                
+                onUpdate(ratio);
+            }
+
+            thumb.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                thumb.setPointerCapture(e.pointerId);
+                activeDrag = true;
+            });
+
+            thumb.addEventListener('pointermove', (e) => {
+                if (!activeDrag) return;
+                calculateAndSetPercentage(e.clientX);
+            });
+
+            thumb.addEventListener('pointerup', (e) => {
+                if (activeDrag) {
+                    thumb.releasePointerCapture(e.pointerId);
+                    activeDrag = false;
+                }
+            });
+
+            // Also support clicking directly on the track
+            track.addEventListener('pointerdown', (e) => {
+                if (e.target !== thumb) {
+                    calculateAndSetPercentage(e.clientX);
+                    thumb.setPointerCapture(e.pointerId);
+                    activeDrag = true;
+                }
+            });
+        }
+
+        /* ==========================================================================
+           10.3 GAMIFICATION FUNCTIONS
+           ========================================================================== */
+        function triggerFlash(cardId, status) {
+            const card = document.getElementById(cardId);
+            const overlay = card.querySelector('.flash-overlay');
+            overlay.className = `flash-overlay flash-${status}`;
+            overlay.style.opacity = '1';
+            
+            card.classList.remove('animate-correct', 'animate-incorrect');
+            void card.offsetWidth; // force reflow
+            
+            if (status === 'success') {
+                card.classList.add('animate-correct');
+            } else {
+                card.classList.add('animate-incorrect');
+            }
+
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+            }, 300);
+        }
+
+        function addXP(amount, eventElement, customColor = 'var(--brand-purple)') {
+            state.xp += amount;
+            state.gold += Math.floor(amount / 2);
+            document.getElementById('gold-display').innerText = state.gold;
+
+            if (eventElement) {
+                const rect = eventElement.getBoundingClientRect();
+                const containerRect = canvas.getBoundingClientRect();
+                createExplosion(
+                    rect.left - containerRect.left + (rect.width / 2),
+                    rect.top - containerRect.top + (rect.height / 2),
+                    customColor
+                );
+            }
+
+            if (state.xp >= state.level * LEVEL_THRESHOLD) {
+                levelUp();
+            }
+            updateGamificationBar();
+        }
+
+        function levelUp() {
+            state.xp = state.xp - (state.level * LEVEL_THRESHOLD);
+            state.level += 1;
+            document.getElementById('modal-level-badge').innerText = state.level;
+            
+            const titles = [
+                "1099 Master Strategist",
+                "Self-Employed Consultant",
+                "Senior Business Architect",
+                "Financially Unlocked Advisor"
+            ];
+            const currentTitle = titles[Math.min(state.level - 2, titles.length - 1)];
+            document.getElementById('modal-level-description').innerHTML = 
+                `Your mastery of gig-economy adjustments has ascended! You are now a <strong>${currentTitle}</strong>. Keep practicing to optimize tax returns.`;
+            
+            setTimeout(() => {
+                document.getElementById('level-modal').classList.add('active');
+            }, 300);
+        }
+
+        function updateGamificationBar() {
+            const nextThreshold = state.level * LEVEL_THRESHOLD;
+            const percentage = (state.xp / nextThreshold) * 100;
+            document.getElementById('xp-progress-bar').style.width = `${percentage}%`;
+            document.getElementById('xp-numbers').innerText = `${state.xp} / ${nextThreshold} XP`;
+            
+            const rankTitles = [
+                "Junior Hustler",
+                "Freelance Strategist",
+                "Business Lead",
+                "Sole Proprietor Authority"
+            ];
+            const currentRank = rankTitles[Math.min(state.level - 1, rankTitles.length - 1)];
+            document.getElementById('level-display').innerText = `Level ${state.level} ${currentRank}`;
+        }
+
+        function unlockAchievement(id, rowId, labelId) {
+            if (state[id]) return;
+            state[id] = true;
+            
+            const label = document.getElementById(labelId);
+            label.className = "status-unlocked";
+            label.innerText = "UNLOCKED";
+            
+            const row = document.getElementById(rowId);
+            row.style.backgroundColor = "rgba(15, 123, 66, 0.03)";
+            
+            state.streak += 1;
+            document.getElementById('streak-display').innerText = `${state.streak} days`;
+        }
+
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+            document.getElementById('level-modal').classList.remove('active');
+        });
+
+        /* ==========================================================================
+           10.4 SYSTEM 1: PROGRESSIVE INCOME BRACKETS
+           ========================================================================== */
+        const labelIncome = document.getElementById('bracket-income-lbl');
+        const labelEffective = document.getElementById('effective-rate-lbl');
+        const bracketBars = document.querySelectorAll('.bracket-bar');
+
+        const TAX_BRACKETS_US = [
+            { rate: 0.10, limit: 11600 },
+            { rate: 0.12, limit: 47150 },
+            { rate: 0.22, limit: 100525 },
+            { rate: 0.24, limit: 191950 },
+            { rate: 0.32, limit: 243725 },
+            { rate: 0.35, limit: 609350 },
+            { rate: 0.37, limit: Infinity }
+        ];
+
+        function processMarginalTaxes(totalEarned) {
+            let accruedTax = 0;
+            let leftToTax = totalEarned;
+            let segmentBase = 0;
+            let activeIndices = [];
+
+            for (let i = 0; i < TAX_BRACKETS_US.length; i++) {
+                const current = TAX_BRACKETS_US[i];
+                const span = current.limit - segmentBase;
+
+                if (leftToTax > span) {
+                    accruedTax += span * current.rate;
+                    leftToTax -= span;
+                    activeIndices.push(i);
+                } else {
+                    accruedTax += leftToTax * current.rate;
+                    activeIndices.push(i);
+                    break;
+                }
+                segmentBase = current.limit;
+            }
+
+            return { totalTax: accruedTax, activeIndices };
+        }
+
+        initSlipFreeSlider('income-slider-track', 'income-slider-thumb', 'income-slider-fill', (percentage) => {
+            const rawIncomeK = Math.round(percentage * 250); // Scale 0 to 250k
+            const fullEarned = rawIncomeK * 1000;
+            
+            labelIncome.innerText = `$${rawIncomeK}k`;
+
+            const calculations = processMarginalTaxes(fullEarned);
+            const calculatedRate = fullEarned > 0 
+                ? ((calculations.totalTax / fullEarned) * 100).toFixed(1)
+                : "0.0";
+
+            labelEffective.innerText = `${calculatedRate}% ($${Math.floor(calculations.totalTax).toLocaleString()})`;
+
+            bracketBars.forEach((bar, idx) => {
+                if (calculations.activeIndices.includes(idx)) {
+                    bar.classList.add('active');
+                } else {
+                    bar.classList.remove('active');
+                }
+            });
+
+            if (rawIncomeK >= 150) {
+                unlockAchievement('hasBracketUnlocked', 'ach-bracket', 'ach-lbl-bracket');
+            }
+        });
+
+        /* ==========================================================================
+           10.5 SYSTEM 2: SCENARIO DATABASE GENERATOR (300+ SCENARIOS)
+           ========================================================================== */
+        // We auto-generate 300+ unique side-hustle and student-oriented situations on load.
+        const expensesDatabase = [];
+
+        const youngNiches = [
+            { id: "streamer", label: "Twitch Streamer", taxTerm: "1099 Creator" },
+            { id: "coder", label: "Freelance Dev", taxTerm: "Independent Contractor" },
+            { id: "crafter", label: "Etsy Jewelry Crafter", taxTerm: "Schedule C Seller" },
+            { id: "reseller", label: "Depop Fashion Flipper", taxTerm: "Sole Proprietor" },
+            { id: "delivery", label: "DoorDash Delivery Rider", taxTerm: "Gig Worker" },
+            { id: "musician", label: "Bedroom Music Producer", taxTerm: "Creative Independent" },
+            { id: "tutor", label: "Online High-School Tutor", taxTerm: "Private Tutoring" }
+        ];
+
+        const writeOffTemplates = [
+            // Deductible items (Business Use)
+            { prefix: "Professional microphone bought exclusively for streams", minCost: 80, maxCost: 350, deductible: true, why: "Directly necessary equipment for delivering 1099 production value." },
+            { prefix: "Procreate app purchase to create client portraits", minCost: 10, maxCost: 15, deductible: true, why: "Software directly utilized to fulfill commission contract revenues." },
+            { prefix: "GitHub Copilot API keys to accelerate client coding assignments", minCost: 20, maxCost: 100, deductible: true, why: "Direct software business operation expense helping increase gig output." },
+            { prefix: "Premium bubblewrap and packaging boxes for shipping art", minCost: 15, maxCost: 60, deductible: true, why: "Direct cost of goods sold necessary to mail physical inventory." },
+            { prefix: "Advertising budget spent on Instagram ads targeting prospective students", minCost: 30, maxCost: 150, deductible: true, why: "Marketing and promotional expenses are fully deductible business costs." },
+            { prefix: "Insulated food delivery bag used to keep food warm during delivery shifts", minCost: 25, maxCost: 45, deductible: true, why: "Direct operational tool required for professional gig task performance." },
+            { prefix: "Digital software plugins and synthesizer sounds for commercial beats", minCost: 40, maxCost: 200, deductible: true, why: "Asset acquisition directly related to trade tools for musical licensing." },
+            { prefix: "Figma Professional subscription to wireframe paid apps", minCost: 15, maxCost: 90, deductible: true, why: "Required prototyping software for professional design contracts." },
+            { prefix: "Postage fees for delivering vintage apparel on Depop", minCost: 8, maxCost: 45, deductible: true, why: "Direct shipping expenses are deductible against your sole proprietor income." },
+            
+            // Non-Deductible items (Personal / Non-Business)
+            { prefix: "Gym membership to build stamina for sitting while coding", minCost: 30, maxCost: 80, deductible: false, why: "General physical health is categorized as a personal non-deductible expense." },
+            { prefix: "University chemistry textbook for major college program", minCost: 120, maxCost: 250, deductible: false, why: "Regular college supplies do not qualify as Schedule C business deductions, though education tax credits exist." },
+            { prefix: "Daily iced latte from local coffee shop to get focused", minCost: 6, maxCost: 18, deductible: false, why: "Daily personal food and beverages are not ordinary and necessary business expenses." },
+            { prefix: "Nintendo Switch bought to play games during breaks", minCost: 300, maxCost: 350, deductible: false, why: "Recreational gaming gear without verified production use is considered a personal expense." },
+            { prefix: "General commuter subway card to travel to high school classes", minCost: 20, maxCost: 60, deductible: false, why: "Commuting expenses for standard school or a typical job are never tax-deductible." },
+            { prefix: "Noise-cancelling headphones purchased to block out sibling noise while playing personal Valorant", minCost: 100, maxCost: 250, deductible: false, why: "Personal comfort item used mainly for recreation is not deductible." },
+            { prefix: "Acne face wash to look presentable on normal webcam chats", minCost: 15, maxCost: 35, deductible: false, why: "Personal hygiene expenses are strictly non-deductible personal grooming." },
+            { prefix: "Designer shoes worn during gig shifts", minCost: 120, maxCost: 300, deductible: false, why: "Street clothes suitable for everyday wear cannot be claimed as business uniform write-offs." }
+        ];
+
+        function buildEndlessDatabase() {
+            // Seed a large, diverse set of scenarios by crossing templates and niches with random pricing
+            let scenarioId = 1;
+            while (expensesDatabase.length < 320) {
+                const template = writeOffTemplates[Math.floor(Math.random() * writeOffTemplates.length)];
+                const niche = youngNiches[Math.floor(Math.random() * youngNiches.length)];
+                const calculatedCost = Math.round(template.minCost + Math.random() * (template.maxCost - template.minCost));
+                
+                expensesDatabase.push({
+                    id: scenarioId++,
+                    niche: niche.label,
+                    name: `${template.prefix} (#${scenarioId})`,
+                    cost: calculatedCost,
+                    deductible: template.deductible,
+                    why: template.why
+                });
+            }
+        }
+        buildEndlessDatabase();
+
+        let currentActiveIdx = 0;
+        const domNiche = document.getElementById('sorter-item-niche');
+        const domName = document.getElementById('sorter-item-title');
+        const domCost = document.getElementById('sorter-item-cost');
+        const btnDeductible = document.getElementById('btn-approve-expense');
+        const btnPersonal = document.getElementById('btn-reject-expense');
+
+        function loadScenarioCard() {
+            const item = expensesDatabase[currentActiveIdx];
+            domNiche.innerText = item.niche;
+            domName.innerText = item.name;
+            domCost.innerText = `$${item.cost}.00`;
+        }
+
+        function runMatchOutcome(chosenDeductible) {
+            const item = expensesDatabase[currentActiveIdx];
+            const area = document.getElementById('card-sorter');
+
+            if (item.deductible === chosenDeductible) {
+                triggerFlash('card-sorter', 'success');
+                addXP(30, area, 'var(--brand-blue)');
+                state.correctSortsInARow++;
+                
+                if (state.correctSortsInARow >= 4) {
+                    unlockAchievement('hasSortUnlocked', 'ach-sort', 'ach-lbl-sort');
+                }
+            } else {
+                triggerFlash('card-sorter', 'error');
+                state.correctSortsInARow = 0;
+            }
+
+            // Animate card slide/warp
+            const targetDeck = document.getElementById('sorter-active-item');
+            targetDeck.style.transform = 'translateY(12px) scale(0.97)';
+            
+            currentActiveIdx = (currentActiveIdx + 1) % expensesDatabase.length;
+
+            setTimeout(() => {
+                loadScenarioCard();
+                targetDeck.style.transform = 'translateY(0px) scale(1)';
+            }, 180);
+        }
+
+        btnDeductible.addEventListener('click', (e) => { e.stopPropagation(); runMatchOutcome(true); });
+        btnPersonal.addEventListener('click', (e) => { e.stopPropagation(); runMatchOutcome(false); });
+
+        loadScenarioCard();
+
+        /* ==========================================================================
+           10.6 SYSTEM 3: ASSET STRATEGY PORTAL
+           ========================================================================== */
+        const gainsDaysLabel = document.getElementById('gains-days-lbl');
+        const gainsFill = document.getElementById('gains-bar-fill');
+        const strategyGate = document.getElementById('strategy-portal');
+
+        initSlipFreeSlider('gains-slider-track', 'gains-slider-thumb', 'gains-slider-fill', (percentage) => {
+            const durationInDays = Math.round(percentage * 450);
+            gainsDaysLabel.innerText = `Day ${durationInDays} of hold`;
+
+            const percentageWidth = Math.min((durationInDays / 365) * 100, 100);
+            gainsFill.style.width = `${percentageWidth}%`;
+
+            if (durationInDays >= 366) {
+                strategyGate.classList.add('flipped');
+                gainsFill.style.backgroundColor = 'var(--brand-green)';
+                unlockAchievement('hasGainsUnlocked', 'ach-gains', 'ach-lbl-gains');
+                
+                if (!state.hasGainsUnlocked) {
+                    addXP(40, strategyGate, 'var(--brand-green)');
+                }
+            } else {
+                strategyGate.classList.remove('flipped');
+                gainsFill.style.backgroundColor = 'var(--brand-red)';
+            }
+        });
+
+        /* ==========================================================================
+           10.7 SYSTEM 4: SCHEDULE C AUDIT SIMULATOR (COMPLIANCE SYSTEM)
+           ========================================================================== */
+        const auditCheckboxOptions = {
+            use: { active: false, refundDelta: 400, riskDelta: 40 },
+            round: { active: false, refundDelta: 150, riskDelta: 25 },
+            cash: { active: false, refundDelta: 300, riskDelta: 35 }
+        };
+
+        const optUse = document.getElementById('audit-opt-use');
+        const optRound = document.getElementById('audit-opt-round');
+        const optCash = document.getElementById('audit-opt-cash');
+        const btnSubmitReturn = document.getElementById('btn-submit-return');
+
+        const labelReturnAmount = document.getElementById('audit-return-amt');
+        const labelStatusWord = document.getElementById('audit-status-word');
+        const svgAuditCircle = document.getElementById('audit-svg-circle');
+        const labelRiskPct = document.getElementById('audit-risk-value');
+
+        function updateScheduleCDashboard() {
+            let refundAccrued = 0;
+            let currentRiskScore = 15; // Base DIF Score (minimum random assessment risk)
+
+            if (auditCheckboxOptions.use.active) {
+                refundAccrued += auditCheckboxOptions.use.refundDelta;
+                currentRiskScore += auditCheckboxOptions.use.riskDelta;
+            }
+            if (auditCheckboxOptions.round.active) {
+                refundAccrued += auditCheckboxOptions.round.refundDelta;
+                currentRiskScore += auditCheckboxOptions.round.riskDelta;
+            }
+            if (auditCheckboxOptions.cash.active) {
+                refundAccrued += auditCheckboxOptions.cash.refundDelta;
+                currentRiskScore += auditCheckboxOptions.cash.riskDelta;
+            }
+
+            labelReturnAmount.innerText = `$${refundAccrued}`;
+            labelRiskPct.innerText = `${currentRiskScore}%`;
+
+            // Adjust Dash-offset (Radius=32, Length=201)
+            const lengthOffset = 201 - (currentRiskScore / 100) * 201;
+            svgAuditCircle.style.strokeDashoffset = lengthOffset;
+
+            // Gauge classification mapping
+            if (currentRiskScore <= 35) {
+                svgAuditCircle.style.stroke = 'var(--brand-green)';
+                labelStatusWord.innerText = "SAFE";
+                labelStatusWord.style.color = 'var(--brand-green)';
+            } else if (currentRiskScore <= 60) {
+                svgAuditCircle.style.stroke = 'var(--brand-amber)';
+                labelStatusWord.innerText = "WARNING";
+                labelStatusWord.style.color = 'var(--brand-amber)';
+            } else {
+                svgAuditCircle.style.stroke = 'var(--brand-red)';
+                labelStatusWord.innerText = "HIGH AUDIT RISK";
+                labelStatusWord.style.color = 'var(--brand-red)';
+            }
+
+            return { refundAccrued, currentRiskScore };
+        }
+
+        function bindRowToggle(dom, key) {
+            dom.addEventListener('click', (e) => {
+                e.stopPropagation();
+                auditCheckboxOptions[key].active = !auditCheckboxOptions[key].active;
+                if (auditCheckboxOptions[key].active) {
+                    dom.classList.add('checked');
+                } else {
+                    dom.classList.remove('checked');
+                }
+                updateScheduleCDashboard();
+            });
+        }
+
+        bindRowToggle(optUse, 'use');
+        bindRowToggle(optRound, 'round');
+        bindRowToggle(optCash, 'cash');
+
+        btnSubmitReturn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const { refundAccrued, currentRiskScore } = updateScheduleCDashboard();
+            const component = document.getElementById('card-audit');
+
+            if (currentRiskScore <= 55) {
+                // Success Path
+                triggerFlash('card-audit', 'success');
+                addXP(50, component, 'var(--brand-amber)');
+                
+                if (refundAccrued >= 400 && currentRiskScore <= 40) {
+                    unlockAchievement('hasAuditUnlocked', 'ach-audit', 'ach-lbl-audit');
+                }
+            } else {
+                // Fail Path
+                triggerFlash('card-audit', 'error');
+                labelStatusWord.innerText = "AUDIT TRIPPED!";
+                labelStatusWord.style.color = 'var(--brand-red)';
+            }
+        });
+
+        updateScheduleCDashboard();
+    </script>
+</body>
+</html>
