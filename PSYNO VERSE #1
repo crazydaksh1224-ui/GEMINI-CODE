@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tax Masterclass Swipe Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* NOTION NATIVE UI STYLING */
+        :root {
+            --bg-color: #f7f7f5; 
+            --card-bg: #ffffff;
+            --text-main: #37352f;
+            --text-muted: #787774;
+            --accent-green: #0f7b6c;
+            --accent-red: #e03e3e;
+            --accent-gold: #d97706;
+            --shadow: rgba(15, 15, 15, 0.1) 0px 4px 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .widget-container {
+            width: 100%;
+            max-width: 420px;
+            height: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        /* PROGRESS & LEVEL INDICATOR */
+        .header-info {
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+        .level-badge {
+            background: var(--text-main);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .progress-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .progress-bar-bg {
+            width: 90%;
+            height: 8px;
+            background-color: #e9e9e7;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-green);
+            transition: width 0.4s ease, background-color 0.4s ease;
+        }
+
+        /* CARD STACK */
+        .card-stack {
+            position: relative;
+            width: 90%;
+            height: 380px;
+            perspective: 1000px;
+        }
+
+        .card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px 24px;
+            box-sizing: border-box;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            border: 1px solid #ededed;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin: 0;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .card-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        /* HOVER TOOLTIPS (WARP + TRANSFORM ANIMATION) */
+        .tooltip-trigger {
+            border-bottom: 2px dashed var(--accent-gold);
+            color: var(--accent-gold);
+            cursor: help;
+            position: relative;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+        .tooltip-trigger:hover {
+            color: #b45309;
+        }
+        .tooltip-box {
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            width: 220px;
+            background: #2f2f2f;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.4;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            
+            /* The Warp & Transform Setup */
+            transform-origin: bottom center;
+            transform: translateX(-50%) scale(0.4) translateY(30px) skewY(10deg);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+            z-index: 100;
+        }
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #2f2f2f transparent transparent transparent;
+        }
+        .tooltip-trigger:hover .tooltip-box,
+        .tooltip-trigger:focus .tooltip-box {
+            /* The Warp & Transform Active State */
+            transform: translateX(-50%) scale(1) translateY(0) skewY(0deg);
+            opacity: 1;
+        }
+
+        /* SWIPE ANIMATIONS */
+        .swipe-left { transform: translateX(-150%) rotate(-15deg) !important; opacity: 0; }
+        .swipe-right { transform: translateX(150%) rotate(15deg) !important; opacity: 0; }
+
+        /* BUTTONS */
+        .controls {
+            display: flex;
+            gap: 24px;
+            margin-top: 25px;
+        }
+        .btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            font-size: 26px;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn:active { transform: scale(0.85); }
+        .btn-myth { color: var(--accent-red); font-weight: 700; }
+        .btn-fact { color: var(--accent-green); font-weight: 700; }
+
+        /* EXPLANATION MODAL */
+        .modal {
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            border-radius: 16px;
+        }
+        .modal.active { bottom: 0; }
+        .modal h3 { font-size: 32px; margin-bottom: 15px; }
+        .modal p { font-size: 16px; color: var(--text-main); line-height: 1.6; margin-bottom: 30px; font-weight: 500;}
+        .next-btn { background: var(--text-main); color: white; border: none; padding: 14px 32px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
+        .next-btn:active { transform: scale(0.95); }
+
+        /* LEVEL UP BANNER */
+        .level-up-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background: var(--text-main);
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .level-up-overlay.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        .level-up-subtitle { font-size: 14px; font-weight: 400; color: #aaa; margin-top: 5px; }
+
+        /* CONFETTI ANIMATION */
+        .confetti {
+            position: absolute;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            z-index: 9999;
+            opacity: 0;
+        }
+        @keyframes fall {
+            0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(300px) rotate(180deg) scale(1.2); }
+            100% { opacity: 0; transform: translateY(600px) rotate(360deg) scale(0.8); }
+        }
+
+        /* END SCREEN */
+        .end-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 16px;
+        }
+        .end-screen.active { display: flex; }
+        .score { font-size: 54px; font-weight: 700; margin: 15px 0; color: var(--accent-green);}
+        .restart-btn { background: var(--text-main); color: white; padding: 14px 28px; border-radius: 8px; font-weight: 600; margin-top: 20px; cursor: pointer; border: none; font-size: 16px;}
+    </style>
+</head>
+<body>
+
+<div class="widget-container">
+    
+    <!-- Top HUD -->
+    <div class="header-info">
+        <div class="level-badge" id="level-badge">LVL 1: The Basics</div>
+        <div class="progress-text" id="progress-text">1 / 30</div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+
+    <!-- Cards -->
+    <div class="card-stack" id="card-stack">
+        <!-- Cards injected by JS -->
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn btn-myth" onclick="handleChoice(false)">❌</button>
+        <button class="btn btn-fact" onclick="handleChoice(true)">✅</button>
+    </div>
+
+    <!-- Explanation Popup -->
+    <div class="modal" id="modal">
+        <h3 id="modal-title">Correct!</h3>
+        <p id="modal-desc">Explanation text.</p>
+        <button class="next-btn" onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <!-- Level Up Overlay -->
+    <div class="level-up-overlay" id="level-up">
+        LEVEL UP!
+        <div class="level-up-subtitle" id="level-subtitle">Unlocked: Side Hustler</div>
+    </div>
+
+    <!-- End Screen -->
+    <div class="end-screen" id="end-screen">
+        <h2>Masterclass Complete!</h2>
+        <div class="score" id="final-score">30/30</div>
+        <p id="end-message">You are officially a Tax Pro.</p>
+        <button class="restart-btn" onclick="location.reload()">Play Again</button>
+    </div>
+</div>
+
+<script>
+    // --- 30 QUESTIONS | 5 LEVELS | MIXED FACT/MYTH ---
+    // Tooltip Helper Function to keep code clean
+    const tt = (word, definition) => `<span class="tooltip-trigger" tabindex="0">${word}<span class="tooltip-box">${definition}</span></span>`;
+
+    const questions = [
+        // LEVEL 1: THE BASICS (1-6)
+        { text: "A massive tax refund means you overpaid the government throughout the year.", isFact: true, explanation: "A refund isn't free money. It's a 0% interest loan you gave the government!" },
+        { text: `Moving into a higher ${tt('tax bracket', 'A range of incomes taxed at a given rate.')} means you might take home less overall money.`, isFact: false, explanation: "Taxes are marginal! You only pay the higher rate on the money that falls INSIDE that specific higher bracket." },
+        { text: "Cash tips earned at a restaurant or service job are legally tax-free.", isFact: false, explanation: "All tip income is taxable by law. Failing to report it is technically tax evasion." },
+        { text: `Money put into a ${tt('Traditional IRA', 'Individual Retirement Account where contributions are often tax-deductible.')} lowers your taxable income for the year.`, isFact: true, explanation: "Yes! Traditional IRA contributions are made pre-tax, shrinking your taxable income instantly." },
+        { text: "Everyone pays the exact same tax rate on their income, regardless of how they make it.", isFact: false, explanation: "Income from investments, business, and standard wages are all taxed at completely different rates!" },
+        { text: "You must file a tax return even if you only made $50 all year.", isFact: false, explanation: "There is a minimum income threshold (usually around $13,850 for single filers) before you are required to file." },
+
+        // LEVEL 2: THE SIDE HUSTLER (7-12)
+        { text: `If you earn money outside a normal job, you are automatically a ${tt('Sole Proprietor', 'An unincorporated business owned and run by one individual.')}.`, isFact: true, explanation: "True! The moment you sell a good or service, the IRS views you as a sole proprietor by default." },
+        { text: "You can write off your daily driving commute to your regular 9-to-5 office.", isFact: false, explanation: "Standard commuting is never deductible. However, driving from your office to a client meeting IS deductible." },
+        { text: `A ${tt('Tax Credit', 'A dollar-for-dollar reduction of the actual tax you owe.')} is generally much better than a Tax Deduction.`, isFact: true, explanation: "Deductions only lower your taxable income. Credits subtract directly from your final tax bill. Credits win!" },
+        { text: "Buying a $1,000 laptop for your side hustle means your tax bill drops by exactly $1,000.", isFact: false, explanation: "It's a deduction, not a credit. It lowers your taxable income by $1,000, saving you a percentage based on your tax bracket." },
+        { text: "You can deduct 100% of business meals if you discuss business with a client.", isFact: false, explanation: "Business meals are generally only 50% deductible under current tax law." },
+        { text: "You don't legally need to report side hustle income if clients pay you purely in cash.", isFact: false, explanation: "Income is income. The IRS requires you to report all earnings, whether paid via bank transfer, crypto, or cash." },
+
+        // LEVEL 3: BUSINESS OWNER (13-18)
+        { text: `Creating an ${tt('LLC', 'Limited Liability Company: Protects personal assets from business lawsuits.')} automatically lowers the amount of taxes you owe.`, isFact: false, explanation: "An LLC is for legal protection, not taxes! The IRS taxes an LLC exactly the same as a sole proprietor by default." },
+        { text: "If your LLC makes zero profit, you never have to file a tax form for it.", isFact: false, explanation: "Even with zero profit, you are usually required to file informational returns or state franchise tax reports." },
+        { text: `You can use an ${tt('S-Corp', 'A tax election that lets business owners split income into salary and dividends.')} to legally avoid paying some self-employment taxes.`, isFact: true, explanation: "Yes! S-Corps allow you to pay yourself a reasonable salary, while taking the rest as distributions free of self-employment tax." },
+        { text: "You must make over $100k a year to legally form an S-Corporation.", isFact: false, explanation: "There is no minimum income requirement! However, the fees usually only make it 'worth it' once you net $40k-$50k." },
+        { text: "Business owners can write off the cost of starting their business.", isFact: true, explanation: "You can deduct up to $5,000 in startup costs in your first year of business!" },
+        { text: "A Single-Member LLC and a Sole Proprietorship are taxed differently by default.", isFact: false, explanation: "The IRS considers a single-member LLC a 'disregarded entity,' meaning it gets taxed exactly like a sole proprietorship." },
+
+        // LEVEL 4: THE INVESTOR (19-24)
+        { text: `Selling a stock after holding it for over a year unlocks much lower ${tt('Capital Gains', 'Taxes applied to the profit made from selling an investment.')} tax rates.`, isFact: true, explanation: "Long-term capital gains rates (0%, 15%, or 20%) are significantly lower than short-term rates!" },
+        { text: "You pay taxes on a stock the moment its value goes up on your screen.", isFact: false, explanation: "You only pay taxes when you actually SELL the stock and 'realize' the gain." },
+        { text: "Cryptocurrency is completely invisible to the government and entirely tax-free.", isFact: false, explanation: "The IRS treats crypto as property. Selling, trading, or earning crypto creates a taxable event." },
+        { text: `Real estate investors can use ${tt('Depreciation', 'A deduction that allows you to recover the cost of property over time.')} to lower their tax bills, even if the property increases in value.`, isFact: true, explanation: "This is a massive real estate loophole! The government lets you deduct the 'wear and tear' of the building while it appreciates." },
+        { text: "You can use your stock market losses to offset your stock market gains.", isFact: true, explanation: "Yes, this is called Tax-Loss Harvesting. You can even write off up to $3,000 of net losses against your regular income!" },
+        { text: "Dividends paid out to you by major companies are completely tax-free.", isFact: false, explanation: "Dividends are taxable! They are usually taxed at the favorable long-term capital gains rate if they are 'qualified' dividends." },
+
+        // LEVEL 5: TAX PRO (25-30)
+        { text: "Writing off a G-Wagon is a secret loophole that makes the car completely free.", isFact: false, explanation: "A write-off is just a discount on your taxes. If you buy a $100k car, you might save $30k in taxes, but you still spent $100k!" },
+        { text: "You can hire your own children to work for your business and save on taxes.", isFact: true, explanation: "Yes! If structured correctly, you can pay your kids, shift income to their 0% tax bracket, and deduct it from your business." },
+        { text: `Your ${tt('Marginal Rate', 'The highest tax rate applied to the last dollar you earned.')} is the average amount of tax you pay on all your money.`, isFact: false, explanation: "Your 'Effective Rate' is your average. Your 'Marginal Rate' is just the highest bracket your last dollar fell into." },
+        { text: `An ${tt('HSA', 'Health Savings Account: Used to pay for medical expenses.')} offers a rare 'Triple-Tax Advantage'.`, isFact: true, explanation: "Contributions are tax-deductible, growth is tax-free, and withdrawals for medical expenses are tax-free. It's the ultimate account!" },
+        { text: "Rich people often borrow money against their assets to avoid paying income taxes.", isFact: true, explanation: "This is the 'Buy, Borrow, Die' strategy. Loans aren't taxed as income, so they borrow against portfolios to live tax-free." },
+        { text: "Tax Avoidance is a federal crime and will send you to prison.", isFact: false, explanation: "Tax EVASION (lying) is illegal. Tax AVOIDANCE (using legal loopholes and deductions) is exactly what the pros do!" }
+    ];
+
+    const levels = [
+        { title: "The Basics", color: "#37352f" },
+        { title: "Side Hustler", color: "#2563eb" }, // Blue
+        { title: "Business Owner", color: "#9333ea" }, // Purple
+        { title: "The Investor", color: "#ea580c" }, // Orange
+        { title: "Tax Pro", color: "#0f7b6c" } // Green
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let currentLevel = 0;
+
+    const stack = document.getElementById('card-stack');
+    const modal = document.getElementById('modal');
+    const progressFill = document.getElementById('progress-fill');
+    const levelBadge = document.getElementById('level-badge');
+    const progressText = document.getElementById('progress-text');
+
+    // Initialize Game
+    function initGame() {
+        // Render max 5 cards visually to keep DOM clean and avoid massive depth
+        renderCards();
+        updateProgress();
+    }
+
+    function renderCards() {
+        stack.innerHTML = '';
+        const cardsToShow = Math.min(questions.length - currentIndex, 5);
+        
+        for (let i = cardsToShow - 1; i >= 0; i--) {
+            const actualIndex = currentIndex + i;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-${actualIndex}`;
+            card.style.zIndex = cardsToShow - i;
+            
+            // Visual stacking effect (limit max drop to look like a neat deck)
+            const scale = 1 - (0.05 * i);
+            const translateY = i * 12;
+            if(i > 0) card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+
+            card.innerHTML = `
+                <div class="card-label">Question ${actualIndex + 1}</div>
+                <h2>"${questions[actualIndex].text}"</h2>
+            `;
+            stack.appendChild(card);
+        }
+    }
+
+    function handleChoice(userChoseFact) {
+        if (currentIndex >= questions.length) return;
+
+        const currentQuestion = questions[currentIndex];
+        const currentCard = document.getElementById(`card-${currentIndex}`);
+        const isCorrect = userChoseFact === currentQuestion.isFact;
+
+        // Animate card away
+        if (userChoseFact) {
+            currentCard.classList.add('swipe-right');
+        } else {
+            currentCard.classList.add('swipe-left');
+        }
+
+        // Setup Modal
+        if (isCorrect) {
+            score++;
+            document.getElementById('modal-title').innerText = "✅ Spot On!";
+            document.getElementById('modal-title').style.color = "var(--accent-green)";
+        } else {
+            document.getElementById('modal-title').innerText = "🚨 Myth Busted!";
+            document.getElementById('modal-title').style.color = "var(--accent-red)";
+        }
+
+        document.getElementById('modal-desc').innerText = currentQuestion.explanation;
+
+        // Show Modal after animation
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 300);
+    }
+
+    function nextQuestion() {
+        modal.classList.remove('active');
+        currentIndex++;
+        updateProgress();
+
+        // Check for Level Up (Every 6 questions)
+        if (currentIndex % 6 === 0 && currentIndex < questions.length) {
+            currentLevel++;
+            triggerLevelUp();
+        } else {
+            proceedToNextCard();
+        }
+    }
+
+    function proceedToNextCard() {
+        if (currentIndex >= questions.length) {
+            setTimeout(showEndScreen, 300);
+        } else {
+            renderCards();
+        }
+    }
+
+    function triggerLevelUp() {
+        fireConfetti();
+        const overlay = document.getElementById('level-up');
+        document.getElementById('level-subtitle').innerText = `Unlocked: ${levels[currentLevel].title}`;
+        overlay.classList.add('active');
+        
+        // Update Level Badge styling
+        levelBadge.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].title}`;
+        levelBadge.style.backgroundColor = levels[currentLevel].color;
+        progressFill.style.backgroundColor = levels[currentLevel].color;
+
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            setTimeout(proceedToNextCard, 400); // Wait for fade out
+        }, 2500);
+    }
+
+    function updateProgress() {
+        const percentage = (currentIndex / questions.length) * 100;
+        progressFill.style.width = `${percentage}%`;
+        progressText.innerText = `${currentIndex} / 30`;
+    }
+
+    // Custom Party Popper Confetti Engine
+    function fireConfetti() {
+        const colors = ['#0f7b6c', '#e03e3e', '#d97706', '#2563eb', '#9333ea'];
+        const container = document.querySelector('.widget-container');
+        
+        for(let i=0; i<40; i++) {
+            let confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            container.appendChild(confetti);
+            
+            // Randomize physics
+            let left = Math.random() * 100;
+            let animDuration = Math.random() * 1.5 + 1.5;
+            let delay = Math.random() * 0.2;
+            
+            confetti.style.left = left + '%';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animation = `fall ${animDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s forwards`;
+            
+            // Cleanup DOM
+            setTimeout(() => confetti.remove(), (animDuration + delay) * 1000);
+        }
+    }
+
+    function showEndScreen() {
+        fireConfetti();
+        setTimeout(fireConfetti, 500);
+        setTimeout(fireConfetti, 1000);
+
+        document.getElementById('end-screen').classList.add('active');
+        document.getElementById('final-score').innerText = `${score}/30`;
+        
+        let message = "";
+        if(score >= 28) message = "Flawless! You're ready to open your own CPA firm.";
+        else if (score >= 20) message = "Incredible work! You know more than 90% of people.";
+        else if (score >= 10) message = "Great start. Time to review some of those pro strategies!";
+        else message = "The Tax Monster got you! Time to restart the Masterclass.";
+        
+        document.getElementById('end-message').innerText = message;
+    }
+
+    // Start
+    initGame();
+
+</script>
+</body>
+</html>
