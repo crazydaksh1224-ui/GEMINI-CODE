@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Diff UI - Centered & Seamless</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <style>
+        /* -------------------------------------
+           THEME VARIABLES
+           Updated: Outer background now perfectly matches canvas
+        ------------------------------------- */
+        :root {
+            /* Dark Theme (Default) */
+            --bg-outer: #000000; /* Matched to ui canvas */
+            --canvas-bg: #000000;
+            --text-main: #FFFFFF;
+            --text-sub: #A3A3A3;
+            --btn-bg: #FFFFFF;
+            --btn-text: #000000;
+            --card-bg: #0D0D0D;
+            --card-border: #1A1A1A;
+            --toolbar-bg: #1A1A1A;
+            --toolbar-top: #242424;
+            --icon-normal: #888888;
+            --divider: #333333;
+            --dot-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.8);
+            --pill-border: #2A2A2A;
+            --transform-handle: #FFFFFF;
+            --transform-handle-border: #000000;
+        }
+
+        body.light {
+            /* Light Theme */
+            --bg-outer: #FFFFFF; /* Matched to ui canvas */
+            --canvas-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --btn-bg: #111827;
+            --btn-text: #FFFFFF;
+            --card-bg: #F3F4F6;
+            --card-border: #E5E7EB;
+            --toolbar-bg: #FFFFFF;
+            --toolbar-top: #F9FAFB;
+            --icon-normal: #4B5563;
+            --divider: #E5E7EB;
+            --dot-color: #D1D5DB;
+            --shadow-color: rgba(17, 24, 39, 0.1);
+            --pill-border: #E5E7EB;
+            --transform-handle: #111827;
+            --transform-handle-border: #FFFFFF;
+        }
+
+        /* -------------------------------------
+           GLOBAL & RESET
+        ------------------------------------- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--bg-outer);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            /* FIX: Robust Flexbox Centering to prevent shifting off-screen */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            /* Variables for Parallax */
+            --mx: 0;
+            --my: 0;
+        }
+
+        /* 
+           FIX FOR FRAMING:
+           Removed absolute positioning and translate. 
+           Relying purely on flexbox for absolute center + scale transform to fit window.
+        */
+        #scale-container {
+            position: relative;
+            width: 1200px;
+            height: 750px;
+            /* Calculate scale to fit exactly within the viewport max width/height */
+            transform: scale(min(calc(100vw / 1200), calc(100vh / 750)));
+            transform-origin: center center;
+            flex-shrink: 0;
+        }
+
+        .ui-canvas {
+            width: 100%;
+            height: 100%;
+            background-color: var(--canvas-bg);
+            /* Removed border-radius/shadow so it blends seamlessly with the matched body background */
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        /* -------------------------------------
+           HEADER COMPONENTS
+        ------------------------------------- */
+        .header {
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            right: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 3px), calc(var(--my) * 3px));
+            will-change: transform;
+        }
+
+        .logo svg path { fill: var(--text-main); transition: fill 0.3s ease; }
+        
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            margin-right: auto;
+            margin-left: 40px;
+        }
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .user-actions .login { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .user-actions .divider { width: 1px; height: 18px; background-color: var(--divider); }
+        .user-actions .demo { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 600; }
+
+        /* -------------------------------------
+           LEFT COLUMN: HERO CONTENT
+        ------------------------------------- */
+        .hero-content {
+            position: absolute;
+            top: 160px;
+            left: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            z-index: 10;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 8px), calc(var(--my) * 8px));
+            will-change: transform;
+        }
+
+        .hero-h1 {
+            color: var(--text-main);
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 0.96;
+            letter-spacing: -2.5px;
+            margin-bottom: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .hero-subtitle {
+            color: var(--text-sub);
+            font-size: 18px;
+            line-height: 1.5;
+            font-weight: 400;
+            width: 360px;
+            margin-bottom: 40px;
+            transition: color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            font-size: 15px;
+            font-weight: 700;
+            padding: 18px 36px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 60px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .social-proof { display: flex; align-items: center; }
+        .avatars-group { display: flex; align-items: center; }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--canvas-bg);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+        .avatar:nth-child(1) { z-index: 3; background-color: #4DD0E1; background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop'); }
+        .avatar:nth-child(2) { z-index: 2; margin-left: -10px; background-color: #FF80AB; background-image: url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop'); }
+        .avatar:nth-child(3) { 
+            z-index: 1; 
+            margin-left: -10px; 
+            background-color: var(--btn-bg); 
+            display: flex; justify-content: center; align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        .avatar:nth-child(3)::after {
+            content: ''; width: 14px; height: 14px; background-color: var(--btn-text); border-radius: 4px 4px 10px 10px;
+        }
+
+        .social-proof-text {
+            color: var(--text-sub);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-left: 16px;
+            width: 250px;
+            transition: color 0.3s ease;
+        }
+
+        /* -------------------------------------
+           RIGHT COLUMN: GRAPHIC COMPOSITION
+        ------------------------------------- */
+        .graphic-composition {
+            position: absolute;
+            top: 130px;
+            right: 60px;
+            width: 580px;
+            height: 480px;
+            z-index: 10;
+        }
+
+        /* 1. Main Background Card */
+        .bg-card {
+            position: absolute;
+            right: 0;
+            top: 20px;
+            width: 500px;
+            height: 440px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            /* Parallax: Moves opposite to mouse */
+            transform: translate(calc(var(--mx) * -12px), calc(var(--my) * -12px));
+            will-change: transform;
+        }
+
+        /* 2. Dot Grid Pattern */
+        .dot-grid {
+            position: absolute;
+            right: 30px;
+            bottom: -20px;
+            width: 140px;
+            height: 110px;
+            background-image: radial-gradient(var(--dot-color) 2px, transparent 2px);
+            background-size: 16px 16px;
+            z-index: 0;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * -5px), calc(var(--my) * -5px));
+            will-change: transform;
+        }
+
+        /* 3. Toolbar Left Vertical */
+        .toolbar {
+            position: absolute;
+            left: 10px;
+            top: 40px;
+            width: 48px;
+            background-color: var(--toolbar-bg);
+            border-radius: 12px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 5;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            transition: background-color 0.3s ease;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 15px), calc(var(--my) * 15px));
+            will-change: transform;
+        }
+        .toolbar-top {
+            background-color: var(--toolbar-top);
+            border-radius: 8px;
+            width: 100%;
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .tool-icon { width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; margin-bottom: 12px; color: var(--icon-normal); transition: color 0.3s ease;}
+        .tool-icon.active { background-color: #C042FF; border-radius: 6px; margin-bottom: 12px; color: #FFFFFF; }
+        .tool-icon:last-child { margin-bottom: 0; }
+
+        /* 4. Add Button (Bottom Left) */
+        .add-btn {
+            position: absolute;
+            left: 10px;
+            bottom: 0px;
+            width: 64px;
+            height: 64px;
+            background-color: var(--toolbar-bg);
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            transition: background-color 0.3s ease;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 25px), calc(var(--my) * 25px));
+            will-change: transform;
+        }
+        .add-btn-inner {
+            width: 28px;
+            height: 28px;
+            background-color: #00E676;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 5. Central Phone Canvas */
+        .phone-canvas {
+            position: absolute;
+            left: 130px;
+            top: -10px;
+            width: 255px;
+            height: 480px;
+            background-color: #4DD0E1;
+            border-radius: 28px;
+            overflow: hidden;
+            z-index: 10;
+            box-shadow: 0 20px 40px var(--shadow-color);
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 20px), calc(var(--my) * 20px));
+            will-change: transform;
+        }
+        .phone-image { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+        /* Bounding Box & Text */
+        .transform-box {
+            position: absolute;
+            top: 40px;
+            left: 30px;
+            width: 190px;
+            height: 110px;
+            border: 1px dashed rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* Parallax applied alongside necessary rotation */
+            transform: translate(calc(var(--mx) * 10px), calc(var(--my) * 10px)) rotate(-4deg);
+            will-change: transform;
+        }
+        .brush-text {
+            font-family: 'Yellowtail', cursive;
+            color: #FFFFFF;
+            font-size: 52px;
+            line-height: 0.85;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .brush-text .sale { margin-left: 20px; }
+        
+        .handle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: var(--transform-handle);
+            border: 1px solid var(--transform-handle-border);
+            border-radius: 50%;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .handle.tl { top: -3px; left: -3px; }
+        .handle.tr { top: -3px; right: -3px; }
+        .handle.bl { bottom: -3px; left: -3px; }
+        .handle.br { bottom: -3px; right: -3px; }
+
+        /* 6. Save Button (Top Right) */
+        .save-btn {
+            position: absolute;
+            right: 0px;
+            top: 30px;
+            width: 36px;
+            height: 36px;
+            background-color: #FFD54F;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 22px), calc(var(--my) * 22px));
+            will-change: transform;
+        }
+
+        /* 7. Large Purple Play Button */
+        .play-btn {
+            position: absolute;
+            right: 155px;
+            top: 200px;
+            width: 78px;
+            height: 78px;
+            background-color: #C042FF;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
+            box-shadow: 0 10px 30px rgba(192, 66, 255, 0.4);
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 40px), calc(var(--my) * 40px));
+            will-change: transform;
+        }
+
+        /* 8. Settings Pill */
+        .settings-pill {
+            position: absolute;
+            right: -10px;
+            bottom: 60px;
+            width: 205px;
+            height: 48px;
+            background-color: var(--toolbar-bg);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 15;
+            border: 1px solid var(--pill-border);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            /* Parallax */
+            transform: translate(calc(var(--mx) * 35px), calc(var(--my) * 35px));
+            will-change: transform;
+        }
+        .settings-font-type { display: flex; align-items: center; gap: 10px; margin-right: 14px; }
+        .settings-font-type span.icon-a { color: var(--text-sub); font-size: 14px; font-weight: 500; }
+        .settings-font-type span.font-name { color: var(--text-main); font-size: 11px; font-weight: 500; }
+        .chevron-down { margin-left: -4px; stroke: var(--text-sub); }
+        .settings-divider { width: 1px; height: 16px; background-color: var(--divider); margin-right: 12px; }
+        .align-icons { display: flex; gap: 8px; }
+
+    </style>
+</head>
+<body>
+
+<!-- Strict Flex Centering Container -->
+<div id="scale-container">
+    <div class="ui-canvas">
+        
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo">
+                <svg width="34" height="24" viewBox="0 0 34 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 10 L 6 0 L 11 15 L 16 0 L 21 15 L 26 0 L 32 10 L 21 24 L 11 24 Z"/>
+                </svg>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="#">Products</a>
+                <a href="#">Solutions</a>
+                <a href="#">Resources</a>
+                <a href="#">Pricing</a>
+            </nav>
+
+            <div class="user-actions">
+                <a href="#" class="login">Log in</a>
+                <div class="divider"></div>
+                <a href="#" class="demo">Request a Demo</a>
+            </div>
+        </header>
+
+        <!-- LEFT COLUMN -->
+        <main class="hero-content">
+            <h1 class="hero-h1">The<br>freedom<br>to create</h1>
+            <p class="hero-subtitle">The online video editor trusted<br>by content creators to make<br>professional video in minutes.</p>
+            <button class="btn-primary">Request a Demo</button>
+            
+            <div class="social-proof">
+                <div class="avatars-group">
+                    <div class="avatar"></div>
+                    <div class="avatar"></div>
+                    <div class="avatar"></div>
+                </div>
+                <p class="social-proof-text">Our world class business development team<br>will walk you though the platform.</p>
+            </div>
+        </main>
+
+        <!-- RIGHT COLUMN -->
+        <section class="graphic-composition">
+            
+            <div class="dot-grid"></div>
+            <div class="bg-card"></div>
+
+            <div class="toolbar">
+                <div class="toolbar-top">
+                    <!-- Undo/Redo -->
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-icon"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-icon"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+                </div>
+                
+                <div class="tool-icon active">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+                </div>
+                <div class="tool-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" transform="rotate(45 12 12)"/></svg>
+                </div>
+                <div class="tool-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="6"/><circle cx="14" cy="14" r="6"/></svg>
+                </div>
+                <div class="tool-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                </div>
+                <div class="tool-icon" style="color: #448AFF;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                </div>
+                <div class="tool-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M20 4v16"/><path d="M4 12h16"/></svg>
+                </div>
+                <div class="tool-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><path d="M10 9l5 3-5 3v-6z"/></svg>
+                </div>
+            </div>
+
+            <div class="add-btn">
+                <div class="add-btn-inner">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </div>
+            </div>
+
+            <div class="phone-canvas">
+                <img src="https://images.unsplash.com/photo-1600600423621-70c9f4416ae9?auto=format&fit=crop&w=600&q=80" alt="Model" class="phone-image">
+                <div class="transform-box">
+                    <div class="handle tl"></div><div class="handle tr"></div><div class="handle bl"></div><div class="handle br"></div>
+                    <div class="brush-text">Super<br><span class="sale">Sale</span></div>
+                </div>
+            </div>
+
+            <div class="save-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path d="M19 21H5C4.44772 21 4 20.5523 4 20V4C4 3.44772 4.44772 3 5 3H16L20 7V20C20 20.5523 19.5523 21 19 21ZM17 21V14H7V21H17ZM14 3V8H7V3H14Z"/></svg>
+            </div>
+
+            <div class="play-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path d="M8 5V19L19 12L8 5Z"/></svg>
+            </div>
+
+            <div class="settings-pill">
+                <div class="settings-font-type">
+                    <span class="icon-a">A</span><span class="font-name">Black Rose</span>
+                    <svg class="chevron-down" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="settings-divider"></div>
+                <div class="align-icons">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#448AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#448AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="5" y1="18" x2="19" y2="18"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#448AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--icon-normal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</div>
+
+<script>
+    // -------------------------------------
+    // THEME SWITCHER (Right Click)
+    // -------------------------------------
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        document.body.classList.toggle('light');
+    });
+
+    // -------------------------------------
+    // SMOOTH LERP PARALLAX ENGINE
+    // -------------------------------------
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    
+    document.addEventListener('mousemove', (e) => {
+        targetX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetY = (e.clientY / window.innerHeight) * 2 - 1;
+    });
+
+    function animateParallax() {
+        const ease = 0.08; 
+        currentX += (targetX - currentX) * ease;
+        currentY += (targetY - currentY) * ease;
+
+        document.body.style.setProperty('--mx', currentX);
+        document.body.style.setProperty('--my', currentY);
+        
+        requestAnimationFrame(animateParallax);
+    }
+    
+    animateParallax();
+</script>
+
+</body>
+</html>
