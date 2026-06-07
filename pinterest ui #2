@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLOT - Dynamic Animation & 3D Parallax Execution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           1. THEME VARIABLES (DARK / LIGHT)
+           ========================================= */
+        :root {
+            --bg-void: #020202;
+            --text-pure: #FFFFFF;
+            --surface-pill: rgba(25, 25, 25, 0.85);
+            --surface-border: #333333;
+            --text-muted: #E2E2E2;
+            --accent-neon: #DDF312;
+            --accent-text: var(--accent-neon);
+            --accent-underline: var(--accent-neon);
+            --btn-bg: #1A1A1A;
+            --btn-border: #2A2A2A;
+            --btn-text: #FFFFFF;
+            --btn-icon-fill: #FFFFFF;
+            --btn-icon-stroke: #000000;
+            --shadow-ambient: rgba(0, 0, 0, 0.95);
+            --eye-icon: #FFFFFF;
+        }
+
+        body.light-theme {
+            --bg-void: #F4F4F5;
+            --text-pure: #09090B;
+            --surface-pill: rgba(255, 255, 255, 0.9);
+            --surface-border: #E4E4E7;
+            --text-muted: #3F3F46;
+            --accent-neon: #DDF312; 
+            --accent-text: #09090B;
+            --accent-underline: #C2D600;
+            --btn-bg: #FFFFFF;
+            --btn-border: #D4D4D8;
+            --btn-text: #09090B;
+            --btn-icon-fill: #09090B;
+            --btn-icon-stroke: #FFFFFF;
+            --shadow-ambient: rgba(0, 0, 0, 0.08);
+            --eye-icon: #09090B;
+        }
+
+        /* =========================================
+           2. DOM RESET & GLOBAL STYLES
+           ========================================= */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-pure);
+            font-family: 'Inter', -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            width: 100vw; height: 100vh;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1), 
+                        color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        html { -webkit-touch-callout: none; user-select: none; }
+
+        /* =========================================
+           3. SCALED HEADER & REDIRECT BUTTON
+           ========================================= */
+        header {
+            width: 100%; height: 144px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 72px; position: absolute; top: 0; left: 0; z-index: 100;
+        }
+
+        .logo {
+            font-weight: 900; font-size: 39px; letter-spacing: -3.5px;
+            text-transform: uppercase; line-height: 1;
+            transform: scaleX(1.15); transform-origin: left; transition: color 0.6s;
+        }
+
+        /* Converted to <a> tag for redirect */
+        .btn-early-access {
+            background-color: var(--btn-bg); border: 1px solid var(--btn-border);
+            color: var(--btn-text); font-family: 'Inter', sans-serif;
+            font-size: 20px; font-weight: 600; letter-spacing: -0.3px;
+            padding: 15px 27px 15px 21px; border-radius: 99px;
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+            text-decoration: none; /* Strip anchor styling */
+            box-shadow: 0 4px 12px var(--shadow-ambient);
+            transition: background-color 0.6s, border-color 0.6s, color 0.6s, transform 0.2s;
+        }
+        .btn-early-access:active { transform: scale(0.96); }
+        .btn-early-access circle { transition: fill 0.6s; fill: var(--btn-icon-fill); }
+        .btn-early-access path { transition: stroke 0.6s; stroke: var(--btn-icon-stroke); }
+
+        /* =========================================
+           4. SCALED TYPOGRAPHY & LOADING UNDERLINE
+           ========================================= */
+        main {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            width: 100%; height: 100%; perspective: 1200px;
+        }
+
+        .hero-stage {
+            position: relative; display: inline-block; text-align: center;
+            z-index: 10; transform-style: preserve-3d;
+        }
+
+        h1 {
+            font-size: 96px; font-weight: 800; line-height: 1.05; 
+            letter-spacing: -0.04em; color: var(--text-pure); position: relative;
+            z-index: 5; text-shadow: 0 20px 40px var(--shadow-ambient);
+            transition: color 0.6s, text-shadow 0.6s;
+        }
+
+        .keyword-accent {
+            color: var(--accent-text); position: relative;
+            display: inline-block; transition: color 0.6s;
+        }
+        .keyword-accent::after {
+            content: ''; position: absolute; bottom: -2px; left: 0;
+            height: 8px; background-color: var(--accent-underline); border-radius: 4px;
+            transition: background-color 0.6s;
+            animation: loadingLine 2.5s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+        }
+        @keyframes loadingLine {
+            0% { left: 0; width: 0%; } 40%, 60% { left: 0; width: 100%; } 100% { left: 100%; width: 0%; }
+        }
+
+        /* =========================================
+           5. BADGES & CUSTOM RIGGED ANIMATIONS
+           ========================================= */
+        .badge {
+            position: absolute; background-color: var(--surface-pill);
+            border: 1px solid var(--surface-border); border-radius: 99px;
+            padding: 12px 21px; display: flex; align-items: center; gap: 10px;
+            font-size: 23px; font-weight: 600; color: var(--text-muted);
+            letter-spacing: -0.02em; z-index: 20;
+            box-shadow: 0 24px 48px var(--shadow-ambient);
+            backdrop-filter: blur(12px); white-space: nowrap;
+            transition: background-color 0.6s, border-color 0.6s, color 0.6s, box-shadow 0.6s;
+            will-change: transform;
+        }
+
+        .badge svg { width: 24px; height: 24px; display: block; transform-origin: center; }
+        
+        /* The dynamic number span */
+        .counter { display: inline-block; min-width: 50px; text-align: left; }
+
+        /* Spatial Setup */
+        .b-heart { top: -33px; left: -72px; }
+        .b-eye   { top: -108px; right: 72px; }
+        .b-fire  { top: 108px; right: -108px; padding: 12px 24px 12px 18px; }
+        .b-star  { bottom: -48px; right: 102px; }
+        .b-coin  { bottom: -147px; right: 480px; }
+        .b-walk  { bottom: -78px; left: 108px; }
+
+        /* --- SVG RIGGING KEYFRAMES --- */
+        
+        /* 1. Heart Pulse */
+        .anim-heart { animation: pulseHeart 1.5s ease-in-out infinite; }
+        @keyframes pulseHeart {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.2); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.2); }
+            60% { transform: scale(1); }
+        }
+
+        /* 2. Eye Blink */
+        .icon-dynamic { transition: fill 0.6s; fill: var(--eye-icon); }
+        .anim-eye { animation: blinkEye 4s infinite; }
+        @keyframes blinkEye {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+
+        /* 3. Fire Flicker */
+        .anim-fire { animation: flickerFire 0.4s ease-in-out infinite alternate; transform-origin: bottom center; }
+        @keyframes flickerFire {
+            0% { transform: scale(1) skewX(0deg); }
+            100% { transform: scaleY(1.15) skewX(4deg); }
+        }
+
+        /* 4. Star Spin */
+        .anim-star { animation: spinStar 8s linear infinite; }
+        @keyframes spinStar {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 5. Coin 3D Flip */
+        .anim-coin { animation: flipCoin 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
+        @keyframes flipCoin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* 6. Walk Cycle */
+        .anim-walk { animation: walkCycle 0.8s ease-in-out infinite; }
+        @keyframes walkCycle {
+            0%, 100% { transform: translateY(0) rotate(-10deg); }
+            50% { transform: translateY(-4px) rotate(10deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">SLOT</div>
+        <!-- Set to direct to video link -->
+        <a href="attached_video.mp4" target="_blank" class="btn-early-access">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 24px; height: 24px;">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8.5 12.5L11 15L15.5 9.5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Get early access
+        </a>
+    </header>
+
+    <main>
+        <div class="hero-stage" id="parallax-stage">
+            
+            <div class="badge b-heart" data-depth="40">
+                <span class="counter" data-target="1921">0</span> 
+                <svg class="anim-heart" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#FF3B30"/>
+                </svg>
+            </div>
+
+            <div class="badge b-eye" data-depth="-20">
+                <svg class="anim-eye" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="icon-dynamic" d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" />
+                </svg>
+                <span class="counter" data-target="2869">0</span>
+            </div>
+
+            <div class="badge b-fire" data-depth="60">
+                <svg class="anim-fire" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.25 1C11.25 1 11.25 5.5 8 7.5C4.75 9.5 3 13 3 16C3 20.97 7.03 24 12 24C16.97 24 21 20.47 21 16C21 11.5 17.5 8.5 17.5 8.5C17.5 8.5 17.5 11.5 15.5 13C15.5 13 16 9.5 14 6.5C12 3.5 11.25 1 11.25 1ZM12 21C10.07 21 8.5 19.43 8.5 17.5C8.5 14.5 12 12.5 12 12.5C12 12.5 14.5 15 14.5 17.5C14.5 19.43 12.93 21 12 21Z" fill="#FF4500"/>
+                </svg>
+                <span class="counter" data-target="2414">0</span>
+            </div>
+
+            <h1 id="core-text">
+                Explore the world,<br>
+                become popular and<br>
+                <span class="keyword-accent">earn</span> coins by your art
+            </h1>
+
+            <div class="badge b-star" data-depth="-30">
+                <span class="counter" data-target="2302">0</span>
+                <svg class="anim-star" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" fill="#FFD700"/>
+                </svg>
+            </div>
+
+            <div class="badge b-coin" data-depth="25">
+                <svg class="anim-coin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                    <path d="M14.5 9C14.5 7.89543 13.3807 7 12 7C10.6193 7 9.5 7.89543 9.5 9C9.5 10.1046 10.6193 11 12 11C13.3807 11 14.5 11.8954 14.5 13C14.5 14.1046 13.3807 15 12 15C10.6193 15 9.5 14.1046 9.5 13" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 6V16" stroke="#000000" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="counter" data-target="2994">0</span>
+            </div>
+
+            <div class="badge b-walk" data-depth="-45">
+                <svg class="anim-walk" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.5 5.5C13.5 6.6 12.6 7.5 11.5 7.5C10.4 7.5 9.5 6.6 9.5 5.5C9.5 4.4 10.4 3.5 11.5 3.5C12.6 3.5 13.5 4.4 13.5 5.5ZM9.8 8.9L7 23H9.1L10.9 15L13 17V23H15V15.5L12.9 13.5L13.5 10.5C15 12.4 17.3 13 19 13V11C17.1 11 15.5 10 14.7 8.6L13.7 7C13.3 6.4 12.7 6 12 6C11.7 6 11.5 6.1 11.2 6.1L6 8.3V13H8V9.6L9.8 8.9Z" fill="#34C759"/>
+                </svg>
+                <span class="counter" data-target="1113">0</span>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. FAST NUMBER PROGRESSION LOOP ENGINE
+        // ==========================================
+        function executeCounterAnimation() {
+            const counters = document.querySelectorAll('.counter');
+            const animationDuration = 2000; // Takes 2 seconds to hit the target
+
+            counters.forEach(counter => {
+                const targetValue = parseInt(counter.getAttribute('data-target'));
+                const startTime = performance.now();
+                
+                function updateNumber(currentTime) {
+                    const elapsedTime = currentTime - startTime;
+                    const rawProgress = Math.min(elapsedTime / animationDuration, 1);
+                    
+                    // easeOutQuart formula for a satisfying fast-start, slow-end stop
+                    const easeProgress = 1 - Math.pow(1 - rawProgress, 4);
+                    
+                    counter.innerText = Math.floor(easeProgress * targetValue);
+                    
+                    if (rawProgress < 1) {
+                        requestAnimationFrame(updateNumber);
+                    } else {
+                        counter.innerText = targetValue; // Force exact final integer
+                    }
+                }
+                requestAnimationFrame(updateNumber);
+            });
+        }
+
+        // Initialize first run immediately
+        executeCounterAnimation();
+        
+        // Loop execution precisely every 6 seconds
+        setInterval(executeCounterAnimation, 6000);
+
+
+        // ==========================================
+        // 2. THEME SWITCHER (RIGHT CLICK)
+        // ==========================================
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('light-theme');
+        });
+
+        // ==========================================
+        // 3. 3D PARALLAX PHYSICS ENGINE
+        // ==========================================
+        const badges = document.querySelectorAll('.badge');
+        const coreText = document.getElementById('core-text');
+        
+        let windowWidth = window.innerWidth;
+        let windowHeight = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            windowWidth = window.innerWidth;
+            windowHeight = window.innerHeight;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = (e.clientX - windowWidth / 2) / (windowWidth / 2);
+            const mouseY = (e.clientY - windowHeight / 2) / (windowHeight / 2);
+
+            const textRotateX = mouseY * -4; 
+            const textRotateY = mouseX * 4;
+            coreText.style.transform = `rotateX(${textRotateX}deg) rotateY(${textRotateY}deg)`;
+
+            badges.forEach(badge => {
+                const depth = parseFloat(badge.getAttribute('data-depth'));
+                
+                const translateX = mouseX * depth;
+                const translateY = mouseY * depth;
+                
+                const rotateX = mouseY * 15 * (depth > 0 ? 1 : -1); 
+                const rotateY = mouseX * -15 * (depth > 0 ? 1 : -1);
+
+                badge.style.transform = `translate3d(${translateX}px, ${translateY}px, ${Math.abs(depth)}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>
