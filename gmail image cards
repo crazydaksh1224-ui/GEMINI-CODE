@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailCanvas - Real Gmail API Integration</title>
+    <!-- Load Google Identity and API scripts -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    
+    <style>
+        :root { --bg-color: #f4f6f8; --primary-blue: #1a73e8; --card-radius: 28px; --glass-bg: rgba(255, 255, 255, 0.6); --glass-border: rgba(255, 255, 255, 0.8); --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.08); --shadow-hover: 0 30px 60px rgba(0, 0, 0, 0.15); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); overflow: hidden; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 30px 30px; }
+        #ui-layer { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 10px; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 10px 15px; border-radius: 40px; border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 90%; max-width: 700px; }
+        #ui-layer input { flex-grow: 1; border: none; background: transparent; padding: 12px 20px; font-size: 16px; outline: none; }
+        #ui-layer button { background-color: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        #ui-layer button:hover { background-color: #1557b0; transform: scale(1.05); }
+        #ui-layer button:disabled { background-color: #999; cursor: not-allowed; transform: none; }
+        #spatial-canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
+        .anchor-node { position: absolute; background: #e8f0fe; color: #1a73e8; padding: 16px 32px; border-radius: 20px; font-weight: 600; font-size: 18px; box-shadow: var(--shadow-soft); display: flex; align-items: center; gap: 12px; transform: translate(-50%, -50%); opacity: 0; cursor: grab; }
+        .image-card { position: absolute; width: 260px; height: 320px; background: white; border-radius: var(--card-radius); padding: 12px; box-shadow: var(--shadow-soft); cursor: grab; display: flex; flex-direction: column; opacity: 0; }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--card-radius) - 8px); pointer-events: none; }
+        .card-tag { position: absolute; bottom: 24px; left: 24px; right: 24px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); padding: 10px 15px; border-radius: 16px; font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <button id="auth-btn">1. Connect Gmail</button>
+        <input type="text" id="gmail-url" placeholder="2. Paste link (e.g., .../FMfcgzQgMCg...)" disabled>
+        <button id="extract-btn" disabled>Extract</button>
+    </div>
+
+    <div id="spatial-canvas"></div>
+
+    <script>
+        // ==========================================
+        // YOUR UNIQUE CLIENT ID IS INJECTED HERE
+        // ==========================================
+        const CLIENT_ID = '533012688570-0tm5ldc1m77qos407burrhn68k2sic6b.apps.googleusercontent.com';
+        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+        let tokenClient;
+        let accessToken = null;
+        let globalZIndex = 10;
+        const canvas = document.getElementById('spatial-canvas');
+
+        // --- 1. INITIALIZE GOOGLE API ---
+        function gapiLoaded() {
+            gapi.load('client', () => {
+                gapi.client.init({}).then(() => {
+                    gapi.client.load('gmail', 'v1');
+                });
+            });
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: (response) => {
+                    if (response.error !== undefined) { 
+                        console.error("Auth Error:", response);
+                        alert("Authentication failed. Check console for details.");
+                        return; 
+                    }
+                    accessToken = response.access_token;
+                    document.getElementById('auth-btn').innerText = "Connected!";
+                    document.getElementById('auth-btn').style.backgroundColor = "#0f9d58";
+                    document.getElementById('gmail-url').disabled = false;
+                    document.getElementById('extract-btn').disabled = false;
+                },
+            });
+        }
+
+        window.onload = () => {
+            gapiLoaded();
+            gisLoaded();
+        };
+
+        // --- 2. AUTHENTICATE USER ---
+        document.getElementById('auth-btn').onclick = () => {
+            if (tokenClient) tokenClient.requestAccessToken({prompt: 'consent'});
+        };
+
+        // --- 3. EXTRACT IMAGES FROM GMAIL API ---
+        document.getElementById('extract-btn').onclick = async () => {
+            const urlInput = document.getElementById('gmail-url').value;
+            if (!urlInput) return alert("Please paste a Gmail link.");
+            
+            // Extract the Message ID from the end of the URL
+            const urlParts = urlInput.split('/');
+            const messageId = urlParts[urlParts.length - 1].split('?')[0]; 
+
+            document.getElementById('extract-btn').innerText = "Fetching...";
+            canvas.innerHTML = '';
+
+            try {
+                // Fetch the email metadata and structure
+                const message = await gapi.client.gmail.users.messages.get({
+                    'userId': 'me',
+                    'id': messageId
+                });
+
+                const payload = message.result.payload;
+                const subjectHeader = payload.headers.find(h => h.name === 'Subject');
+                const subject = subjectHeader ? subjectHeader.value : "No Subject";
+                
+                let imageParts = [];
+                
+                // Recursive function to find images in complex email payloads
+                function findImages(parts) {
+                    if (!parts) return;
+                    for (let part of parts) {
+                        if (part.mimeType && part.mimeType.startsWith('image/') && part.body.attachmentId) {
+                            imageParts.push(part);
+                        }
+                        if (part.parts) findImages(part.parts);
+                    }
+                }
+                
+                findImages(payload.parts);
+
+                if (imageParts.length === 0) {
+                    alert("No images found in this email!");
+                    document.getElementById('extract-btn').innerText = "Extract";
+                    return;
+                }
+
+                // Download the actual image files (Base64 data)
+                const extractedImages = [];
+                for (let part of imageParts) {
+                    const attachment = await gapi.client.gmail.users.messages.attachments.get({
+                        'userId': 'me',
+                        'messageId': messageId,
+                        'id': part.body.attachmentId
+                    });
+
+                    // Google sends Base64Url format. Convert it to standard Base64.
+                    let base64 = attachment.result.data.replace(/-/g, '+').replace(/_/g, '/');
+                    extractedImages.push({
+                        url: `data:${part.mimeType};base64,${base64}`,
+                        name: part.filename || "image"
+                    });
+                }
+
+                // Render to board
+                renderBoard({ subject: subject, images: extractedImages });
+                document.getElementById('extract-btn').innerText = "Extract";
+
+            } catch (err) {
+                console.error("API Error:", err);
+                alert("Error fetching email. Ensure the link is correct and you have permission. Check console for details.");
+                document.getElementById('extract-btn').innerText = "Extract";
+            }
+        };
+
+        // --- 4. RENDER ENGINE ---
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            element.onmousedown = (e) => {
+                e.preventDefault();
+                element.style.zIndex = ++globalZIndex;
+                pos3 = e.clientX; pos4 = e.clientY;
+                document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+                document.onmousemove = (e) => {
+                    e.preventDefault();
+                    pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX; pos4 = e.clientY;
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                };
+            };
+        }
+
+        function renderBoard(data) {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            const anchor = document.createElement('div');
+            anchor.className = 'anchor-node';
+            anchor.innerHTML = `<div>📧 ${data.subject}</div>`;
+            anchor.style.left = `${centerX}px`;
+            anchor.style.top = `${centerY}px`;
+            canvas.appendChild(anchor);
+            setTimeout(() => anchor.style.opacity = 1, 100);
+            makeDraggable(anchor);
+
+            data.images.forEach((imgData, index) => {
+                setTimeout(() => {
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    const angle = (Math.random() - 0.5) * 30;
+                    const scatterX = centerX + (Math.random() - 0.5) * 600;
+                    const scatterY = centerY + (Math.random() - 0.5) * 500;
+
+                    card.style.left = `${scatterX}px`;
+                    card.style.top = `${scatterY}px`;
+                    
+                    card.innerHTML = `
+                        <div style="transform: rotate(${angle}deg); width: 100%; height: 100%;">
+                            <img src="${imgData.url}">
+                            <div class="card-tag"><span>${imgData.name}</span></div>
+                        </div>`;
+                    
+                    card.style.animation = `popIn 0.5s forwards`;
+                    canvas.appendChild(card);
+                    makeDraggable(card);
+                }, index * 200);
+            });
+        }
+    </script>
+</body>
+</html>
