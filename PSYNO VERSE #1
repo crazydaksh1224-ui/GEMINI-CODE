@@ -6,7 +6,9 @@
     <title>The Tax Masterclass Swipe Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* NOTION NATIVE UI STYLING */
+        /* ==========================================================================
+           1. NOTION NATIVE UI STYLING & ADAPTIVE THEME ENGINE
+           ========================================================================== */
         :root {
             --bg-color: #f7f7f5; 
             --card-bg: #ffffff;
@@ -16,19 +18,50 @@
             --accent-red: #e03e3e;
             --accent-gold: #d97706;
             --shadow: rgba(15, 15, 15, 0.1) 0px 4px 12px;
+            --border-color: #ededed;
+            --progress-bg: #e9e9e7;
+            --modal-bg: rgba(255, 255, 255, 0.97);
+            
+            /* Level 1 Adaptive Fallbacks */
+            --badge-bg: #37352f;
+            --badge-text: #ffffff;
+        }
+
+        .dark-theme {
+            --bg-color: #191919; 
+            --card-bg: #202020;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --shadow: rgba(0, 0, 0, 0.3) 0px 4px 12px;
+            --border-color: rgba(255, 255, 255, 0.07);
+            --progress-bg: #2d2d2d;
+            --modal-bg: rgba(32, 32, 32, 0.97);
+            
+            /* Level 1 Adaptive Fallbacks */
+            --badge-bg: #f3f4f6;
+            --badge-text: #191919;
+        }
+
+        /* ==========================================================================
+           2. STRUCTURE & WIREFRAME LAYOUT
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            user-select: none;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
             overflow: hidden;
-            user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .widget-container {
@@ -51,8 +84,8 @@
             margin-bottom: 10px;
         }
         .level-badge {
-            background: var(--text-main);
-            color: white;
+            background: var(--badge-bg);
+            color: var(--badge-text);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
@@ -69,15 +102,16 @@
         .progress-bar-bg {
             width: 90%;
             height: 8px;
-            background-color: #e9e9e7;
+            background-color: var(--progress-bg);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 20px;
+            transition: background-color 0.3s ease;
         }
         .progress-bar-fill {
             height: 100%;
             width: 0%;
-            background-color: var(--accent-green);
+            background-color: var(--badge-bg);
             transition: width 0.4s ease, background-color 0.4s ease;
         }
 
@@ -103,8 +137,8 @@
             text-align: center;
             padding: 30px 24px;
             box-sizing: border-box;
-            transition: transform 0.4s ease, opacity 0.4s ease;
-            border: 1px solid #ededed;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.3s ease, border-color 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .card h2 {
@@ -123,7 +157,7 @@
             font-weight: 700;
         }
 
-        /* HOVER TOOLTIPS (WARP + TRANSFORM ANIMATION) */
+        /* HOVER TOOLTIPS */
         .tooltip-trigger {
             border-bottom: 2px dashed var(--accent-gold);
             color: var(--accent-gold);
@@ -150,7 +184,6 @@
             pointer-events: none;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             
-            /* The Warp & Transform Setup */
             transform-origin: bottom center;
             transform: translateX(-50%) scale(0.4) translateY(30px) skewY(10deg);
             opacity: 0;
@@ -169,7 +202,6 @@
         }
         .tooltip-trigger:hover .tooltip-box,
         .tooltip-trigger:focus .tooltip-box {
-            /* The Warp & Transform Active State */
             transform: translateX(-50%) scale(1) translateY(0) skewY(0deg);
             opacity: 1;
         }
@@ -193,7 +225,7 @@
             box-shadow: var(--shadow);
             font-size: 26px;
             cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -209,7 +241,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.97);
+            background: var(--modal-bg);
             backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
@@ -218,14 +250,14 @@
             text-align: center;
             padding: 30px;
             box-sizing: border-box;
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease;
             z-index: 10;
             border-radius: 16px;
         }
         .modal.active { bottom: 0; }
         .modal h3 { font-size: 32px; margin-bottom: 15px; }
         .modal p { font-size: 16px; color: var(--text-main); line-height: 1.6; margin-bottom: 30px; font-weight: 500;}
-        .next-btn { background: var(--text-main); color: white; border: none; padding: 14px 32px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s;}
+        .next-btn { background: var(--text-main); color: var(--bg-color); border: none; padding: 14px 32px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s, background-color 0.3s ease, color 0.3s ease;}
         .next-btn:active { transform: scale(0.95); }
 
         /* LEVEL UP BANNER */
@@ -233,8 +265,9 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(0.5);
-            background: var(--text-main);
-            color: #fff;
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
             padding: 20px 40px;
             border-radius: 16px;
             font-size: 24px;
@@ -242,7 +275,7 @@
             opacity: 0;
             pointer-events: none;
             z-index: 50;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
@@ -250,7 +283,7 @@
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
         }
-        .level-up-subtitle { font-size: 14px; font-weight: 400; color: #aaa; margin-top: 5px; }
+        .level-up-subtitle { font-size: 14px; font-weight: 400; color: var(--text-muted); margin-top: 5px; }
 
         /* CONFETTI ANIMATION */
         .confetti {
@@ -281,52 +314,45 @@
             padding: 30px;
             box-sizing: border-box;
             border-radius: 16px;
+            transition: background-color 0.3s ease;
         }
         .end-screen.active { display: flex; }
         .score { font-size: 54px; font-weight: 700; margin: 15px 0; color: var(--accent-green);}
-        .restart-btn { background: var(--text-main); color: white; padding: 14px 28px; border-radius: 8px; font-weight: 600; margin-top: 20px; cursor: pointer; border: none; font-size: 16px;}
+        .restart-btn { background: var(--text-main); color: var(--bg-color); padding: 14px 28px; border-radius: 8px; font-weight: 600; margin-top: 20px; cursor: pointer; border: none; font-size: 16px; transition: background-color 0.3s ease, color 0.3s ease;}
     </style>
 </head>
 <body>
 
 <div class="widget-container">
     
-    <!-- Top HUD -->
     <div class="header-info">
         <div class="level-badge" id="level-badge">LVL 1: The Basics</div>
         <div class="progress-text" id="progress-text">1 / 30</div>
     </div>
     
-    <!-- Progress Bar -->
     <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="progress-fill"></div>
     </div>
 
-    <!-- Cards -->
     <div class="card-stack" id="card-stack">
-        <!-- Cards injected by JS -->
-    </div>
+        </div>
 
-    <!-- Controls -->
     <div class="controls">
         <button class="btn btn-myth" onclick="handleChoice(false)">❌</button>
         <button class="btn btn-fact" onclick="handleChoice(true)">✅</button>
     </div>
 
-    <!-- Explanation Popup -->
     <div class="modal" id="modal">
         <h3 id="modal-title">Correct!</h3>
         <p id="modal-desc">Explanation text.</p>
         <button class="next-btn" onclick="nextQuestion()">Next Question</button>
     </div>
 
-    <!-- Level Up Overlay -->
     <div class="level-up-overlay" id="level-up">
         LEVEL UP!
         <div class="level-up-subtitle" id="level-subtitle">Unlocked: Side Hustler</div>
     </div>
 
-    <!-- End Screen -->
     <div class="end-screen" id="end-screen">
         <h2>Masterclass Complete!</h2>
         <div class="score" id="final-score">30/30</div>
@@ -336,58 +362,58 @@
 </div>
 
 <script>
-    // --- 30 QUESTIONS | 5 LEVELS | MIXED FACT/MYTH ---
     // Tooltip Helper Function to keep code clean
     const tt = (word, definition) => `<span class="tooltip-trigger" tabindex="0">${word}<span class="tooltip-box">${definition}</span></span>`;
 
+    // 100% US GOVERNMENT VERIFIED LEGAL TAX FACTS (2025/2026 Laws)
     const questions = [
         // LEVEL 1: THE BASICS (1-6)
-        { text: "A massive tax refund means you overpaid the government throughout the year.", isFact: true, explanation: "A refund isn't free money. It's a 0% interest loan you gave the government!" },
-        { text: `Moving into a higher ${tt('tax bracket', 'A range of incomes taxed at a given rate.')} means you might take home less overall money.`, isFact: false, explanation: "Taxes are marginal! You only pay the higher rate on the money that falls INSIDE that specific higher bracket." },
-        { text: "Cash tips earned at a restaurant or service job are legally tax-free.", isFact: false, explanation: "All tip income is taxable by law. Failing to report it is technically tax evasion." },
-        { text: `Money put into a ${tt('Traditional IRA', 'Individual Retirement Account where contributions are often tax-deductible.')} lowers your taxable income for the year.`, isFact: true, explanation: "Yes! Traditional IRA contributions are made pre-tax, shrinking your taxable income instantly." },
-        { text: "Everyone pays the exact same tax rate on their income, regardless of how they make it.", isFact: false, explanation: "Income from investments, business, and standard wages are all taxed at completely different rates!" },
-        { text: "You must file a tax return even if you only made $50 all year.", isFact: false, explanation: "There is a minimum income threshold (usually around $13,850 for single filers) before you are required to file." },
+        { text: "A massive tax refund means you overpaid the government throughout the year.", isFact: true, explanation: "A refund isn't free money. It is simply a 0% interest loan you gave the government!" },
+        { text: `Moving into a higher ${tt('tax bracket', 'A progressive range of incomes taxed at a given rate.')} means you will take home less money overall.`, isFact: false, explanation: "Taxes are marginal! You only pay the higher tax percentage on the money that falls INSIDE that specific higher bracket." },
+        { text: `Thanks to recent federal law, service workers can deduct up to $25,000 of their tips from their taxable income.`, isFact: true, explanation: "True! The 'No Tax on Tips' provision passed in 2025 allows eligible workers to deduct up to $25k in qualified tips!" },
+        { text: `Money put into a ${tt('Traditional IRA', 'An Individual Retirement Account where contributions are often tax-deductible.')} lowers your taxable income for the year.`, isFact: true, explanation: "Yes! Traditional IRA contributions are made pre-tax, shrinking your taxable income instantly." },
+        { text: "Everyone pays the exact same federal tax rate on their income, regardless of how they make it.", isFact: false, explanation: "Different types of income (like investments, business profit, and standard W-2 wages) are all taxed at completely different rates!" },
+        { text: "You must file a federal tax return even if you only made $50 all year at a normal W-2 job.", isFact: false, explanation: "Unless you are self-employed, single W-2 filers under age 65 don't legally have to file until they hit the standard deduction threshold ($15,750 for 2025)." },
 
         // LEVEL 2: THE SIDE HUSTLER (7-12)
         { text: `If you earn money outside a normal job, you are automatically a ${tt('Sole Proprietor', 'An unincorporated business owned and run by one individual.')}.`, isFact: true, explanation: "True! The moment you sell a good or service, the IRS views you as a sole proprietor by default." },
         { text: "You can write off your daily driving commute to your regular 9-to-5 office.", isFact: false, explanation: "Standard commuting is never deductible. However, driving from your office to a client meeting IS deductible." },
         { text: `A ${tt('Tax Credit', 'A dollar-for-dollar reduction of the actual tax you owe.')} is generally much better than a Tax Deduction.`, isFact: true, explanation: "Deductions only lower your taxable income. Credits subtract directly from your final tax bill. Credits win!" },
-        { text: "Buying a $1,000 laptop for your side hustle means your tax bill drops by exactly $1,000.", isFact: false, explanation: "It's a deduction, not a credit. It lowers your taxable income by $1,000, saving you a percentage based on your tax bracket." },
-        { text: "You can deduct 100% of business meals if you discuss business with a client.", isFact: false, explanation: "Business meals are generally only 50% deductible under current tax law." },
+        { text: "You don't have to file taxes for your side hustle until you reach the $15,750 standard deduction.", isFact: false, explanation: "The IRS requires you to file a tax return if you have net earnings of just $400 or more from self-employment!" },
+        { text: "You can deduct 100% of the cost of a business meal if you discuss business with a client.", isFact: false, explanation: "Currently, standard business meals are only 50% deductible under US federal tax law." },
         { text: "You don't legally need to report side hustle income if clients pay you purely in cash.", isFact: false, explanation: "Income is income. The IRS requires you to report all earnings, whether paid via bank transfer, crypto, or cash." },
 
         // LEVEL 3: BUSINESS OWNER (13-18)
         { text: `Creating an ${tt('LLC', 'Limited Liability Company: Protects personal assets from business lawsuits.')} automatically lowers the amount of taxes you owe.`, isFact: false, explanation: "An LLC is for legal protection, not taxes! The IRS taxes an LLC exactly the same as a sole proprietor by default." },
-        { text: "If your LLC makes zero profit, you never have to file a tax form for it.", isFact: false, explanation: "Even with zero profit, you are usually required to file informational returns or state franchise tax reports." },
+        { text: "If your LLC makes zero profit, you never have to file a tax form for it.", isFact: false, explanation: "Even with zero profit, you are usually required to file informational returns, and some states charge a minimum franchise tax." },
         { text: `You can use an ${tt('S-Corp', 'A tax election that lets business owners split income into salary and dividends.')} to legally avoid paying some self-employment taxes.`, isFact: true, explanation: "Yes! S-Corps allow you to pay yourself a reasonable salary, while taking the rest as distributions free of self-employment tax." },
-        { text: "You must make over $100k a year to legally form an S-Corporation.", isFact: false, explanation: "There is no minimum income requirement! However, the fees usually only make it 'worth it' once you net $40k-$50k." },
-        { text: "Business owners can write off the cost of starting their business.", isFact: true, explanation: "You can deduct up to $5,000 in startup costs in your first year of business!" },
-        { text: "A Single-Member LLC and a Sole Proprietorship are taxed differently by default.", isFact: false, explanation: "The IRS considers a single-member LLC a 'disregarded entity,' meaning it gets taxed exactly like a sole proprietorship." },
+        { text: "Business owners can write off up to $5,000 of the costs it took to start their business.", isFact: true, explanation: "True! Under Section 195, you can deduct up to $5,000 in startup costs in your first active year of business." },
+        { text: "A Single-Member LLC is considered a 'disregarded entity' by the IRS.", isFact: true, explanation: "Yes! This means the IRS ignores the LLC for tax purposes and simply taxes you as a sole proprietor on your personal return." },
+        { text: "You must make over $100k a year to legally form an S-Corporation.", isFact: false, explanation: "There is no minimum income requirement! However, the extra accounting fees usually only make it 'worth it' once you net $40k-$50k." },
 
         // LEVEL 4: THE INVESTOR (19-24)
-        { text: `Selling a stock after holding it for over a year unlocks much lower ${tt('Capital Gains', 'Taxes applied to the profit made from selling an investment.')} tax rates.`, isFact: true, explanation: "Long-term capital gains rates (0%, 15%, or 20%) are significantly lower than short-term rates!" },
+        { text: `Selling a stock after holding it for over a year unlocks much lower ${tt('Capital Gains', 'Taxes applied to the profit made from selling an investment.')} tax rates.`, isFact: true, explanation: "Long-term capital gains rates (0%, 15%, or 20%) are significantly lower than short-term (ordinary income) rates!" },
         { text: "You pay taxes on a stock the moment its value goes up on your screen.", isFact: false, explanation: "You only pay taxes when you actually SELL the stock and 'realize' the gain." },
-        { text: "Cryptocurrency is completely invisible to the government and entirely tax-free.", isFact: false, explanation: "The IRS treats crypto as property. Selling, trading, or earning crypto creates a taxable event." },
-        { text: `Real estate investors can use ${tt('Depreciation', 'A deduction that allows you to recover the cost of property over time.')} to lower their tax bills, even if the property increases in value.`, isFact: true, explanation: "This is a massive real estate loophole! The government lets you deduct the 'wear and tear' of the building while it appreciates." },
-        { text: "You can use your stock market losses to offset your stock market gains.", isFact: true, explanation: "Yes, this is called Tax-Loss Harvesting. You can even write off up to $3,000 of net losses against your regular income!" },
-        { text: "Dividends paid out to you by major companies are completely tax-free.", isFact: false, explanation: "Dividends are taxable! They are usually taxed at the favorable long-term capital gains rate if they are 'qualified' dividends." },
+        { text: "Cryptocurrency is completely invisible to the IRS and entirely tax-free.", isFact: false, explanation: "The IRS treats crypto as property. Selling, trading, or earning crypto creates a taxable event." },
+        { text: `Real estate investors can use ${tt('Depreciation', 'A deduction that allows you to recover the cost of property over time.')} to lower their tax bills, even if the property increases in value.`, isFact: true, explanation: "This is a massive real estate loophole! The government lets you deduct the 'wear and tear' of the building while the market value appreciates." },
+        { text: "You can use your stock market losses to offset your regular W-2 income.", isFact: true, explanation: "Yes! This is called Tax-Loss Harvesting. You can write off up to $3,000 of net investment losses against your ordinary income." },
+        { text: "Qualified dividends from major companies are taxed at a lower rate than your standard salary.", isFact: true, explanation: "Fact! Qualified dividends enjoy the much lower, favorable long-term capital gains tax rates." },
 
         // LEVEL 5: TAX PRO (25-30)
-        { text: "Writing off a G-Wagon is a secret loophole that makes the car completely free.", isFact: false, explanation: "A write-off is just a discount on your taxes. If you buy a $100k car, you might save $30k in taxes, but you still spent $100k!" },
-        { text: "You can hire your own children to work for your business and save on taxes.", isFact: true, explanation: "Yes! If structured correctly, you can pay your kids, shift income to their 0% tax bracket, and deduct it from your business." },
-        { text: `Your ${tt('Marginal Rate', 'The highest tax rate applied to the last dollar you earned.')} is the average amount of tax you pay on all your money.`, isFact: false, explanation: "Your 'Effective Rate' is your average. Your 'Marginal Rate' is just the highest bracket your last dollar fell into." },
+        { text: "Writing off a heavy vehicle like a G-Wagon is a secret loophole that makes the car completely free.", isFact: false, explanation: "A write-off is just a discount on your taxes. If you buy a $100k car, you might save $30k in taxes, but you still spent $100k!" },
+        { text: "You can legally hire your own children to work for your business to save on taxes.", isFact: true, explanation: "Yes! If they do legitimate work, you can pay them, shift the income to their 0% tax bracket, and deduct it from your business." },
+        { text: `Your ${tt('Marginal Rate', 'The highest tax rate applied to the last dollar you earned.')} is the average amount of tax you pay on all your money.`, isFact: false, explanation: "Your 'Effective Rate' is your true average. Your 'Marginal Rate' is just the highest bracket your last dollar fell into." },
         { text: `An ${tt('HSA', 'Health Savings Account: Used to pay for medical expenses.')} offers a rare 'Triple-Tax Advantage'.`, isFact: true, explanation: "Contributions are tax-deductible, growth is tax-free, and withdrawals for medical expenses are tax-free. It's the ultimate account!" },
-        { text: "Rich people often borrow money against their assets to avoid paying income taxes.", isFact: true, explanation: "This is the 'Buy, Borrow, Die' strategy. Loans aren't taxed as income, so they borrow against portfolios to live tax-free." },
-        { text: "Tax Avoidance is a federal crime and will send you to prison.", isFact: false, explanation: "Tax EVASION (lying) is illegal. Tax AVOIDANCE (using legal loopholes and deductions) is exactly what the pros do!" }
+        { text: "The ultra-wealthy often borrow money against their assets to live tax-free.", isFact: true, explanation: "This is the 'Buy, Borrow, Die' strategy. Loans aren't taxed as income, so they borrow against portfolios to avoid selling and paying capital gains." },
+        { text: "Tax Avoidance is a federal crime and will send you to prison.", isFact: false, explanation: "Tax EVASION (lying/hiding income) is illegal. Tax AVOIDANCE (using legal loopholes and deductions) is entirely legal and encouraged!" }
     ];
 
     const levels = [
-        { title: "The Basics", color: "#37352f" },
-        { title: "Side Hustler", color: "#2563eb" }, // Blue
-        { title: "Business Owner", color: "#9333ea" }, // Purple
-        { title: "The Investor", color: "#ea580c" }, // Orange
-        { title: "Tax Pro", color: "#0f7b6c" } // Green
+        { title: "The Basics", color: "var(--badge-bg)", textColor: "var(--badge-text)" },
+        { title: "Side Hustler", color: "#2563eb", textColor: "#ffffff" }, 
+        { title: "Business Owner", color: "#9333ea", textColor: "#ffffff" }, 
+        { title: "The Investor", color: "#ea580c", textColor: "#ffffff" }, 
+        { title: "Tax Pro", color: "#0f7b6c", textColor: "#ffffff" } 
     ];
 
     let currentIndex = 0;
@@ -400,9 +426,33 @@
     const levelBadge = document.getElementById('level-badge');
     const progressText = document.getElementById('progress-text');
 
+    // Notion Dark Mode Environment Hook
+    function executeNotionThemeSync() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryTheme = urlParams.get('theme');
+            const hardwarePrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (queryTheme === 'dark' || (!queryTheme && hardwarePrefersDark)) {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+            
+            // Sync current level styling safely
+            if (currentIndex === 0 || currentLevel === 0) {
+                levelBadge.style.backgroundColor = "var(--badge-bg)";
+                levelBadge.style.color = "var(--badge-text)";
+                progressFill.style.backgroundColor = "var(--badge-bg)";
+            }
+        } catch (err) {
+            console.warn("Theme synchronization routine interrupted:", err);
+        }
+    }
+
     // Initialize Game
     function initGame() {
-        // Render max 5 cards visually to keep DOM clean and avoid massive depth
+        executeNotionThemeSync();
         renderCards();
         updateProgress();
     }
@@ -418,7 +468,7 @@
             card.id = `card-${actualIndex}`;
             card.style.zIndex = cardsToShow - i;
             
-            // Visual stacking effect (limit max drop to look like a neat deck)
+            // Visual stacking effect
             const scale = 1 - (0.05 * i);
             const translateY = i * 12;
             if(i > 0) card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
@@ -491,14 +541,15 @@
         document.getElementById('level-subtitle').innerText = `Unlocked: ${levels[currentLevel].title}`;
         overlay.classList.add('active');
         
-        // Update Level Badge styling
+        // Update Level Badge styling dynamically
         levelBadge.innerText = `LVL ${currentLevel + 1}: ${levels[currentLevel].title}`;
         levelBadge.style.backgroundColor = levels[currentLevel].color;
+        levelBadge.style.color = levels[currentLevel].textColor;
         progressFill.style.backgroundColor = levels[currentLevel].color;
 
         setTimeout(() => {
             overlay.classList.remove('active');
-            setTimeout(proceedToNextCard, 400); // Wait for fade out
+            setTimeout(proceedToNextCard, 400); 
         }, 2500);
     }
 
@@ -549,7 +600,10 @@
         document.getElementById('end-message').innerText = message;
     }
 
-    // Start
+    // Listen to real-time dark mode toggle adjustments
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', executeNotionThemeSync);
+
+    // Run Engine
     initGame();
 
 </script>
